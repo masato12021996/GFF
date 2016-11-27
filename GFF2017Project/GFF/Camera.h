@@ -16,7 +16,9 @@ public:
 public:
 	void update( );
 private:
-	Vector _to_pos;
+	void rotateCameraforMouse( );
+private:
+	Vector _pos;
 	Vector _target; 
 	Vector _before_mouse_pos;
 };

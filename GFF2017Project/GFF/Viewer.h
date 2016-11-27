@@ -16,5 +16,6 @@ public:
 	void initialize( );
 	void update( );
 private:
+	void drawPlayer( );
 	void drawStageMdl( );
 };
