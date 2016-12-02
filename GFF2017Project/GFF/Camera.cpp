@@ -4,7 +4,7 @@
 #include "Keyboard.h"
 #include "Model.h"
 
-const Vector START_POS = Vector( 0, 50, 50 );
+const Vector START_POS = Vector( 0, 0, -50 );
 
 CameraPtr Camera::getTask( ) {
 	ApplicationPtr fw = Application::getInstance( );

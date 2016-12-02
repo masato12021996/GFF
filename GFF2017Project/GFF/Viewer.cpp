@@ -1,4 +1,7 @@
 #include "Viewer.h"
+#include "Game.h"
+#include "Player.h"
+#include "Animation.h"
 #include "Application.h"
 #include "Drawer.h"
 
@@ -38,11 +41,15 @@ void Viewer::update( ) {
 	drawPlayer( );
 }
 void Viewer::drawPlayer( ) {
+	GamePtr game = Game::getTask( );
+	PlayerPtr player = game->getPlayer( );
 	DrawerPtr drawer = Drawer::getTask( );
-	Vector pos = Vector( 0, 0, 0 );
-	Vector dir = Vector( 1, 0, 0 );
-	int motion = MODEL_MV1_PLAYER_WAIT;
-	double anim_tim = 0.0;
+	AnimationPtr animation = player->getAnimation( );
+
+	Vector pos = player->getPos( );
+	Vector dir = player->getDir( );
+	int motion = animation->getMotion( );
+	double anim_tim = animation->getAnimTime( );
 	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( pos, dir, motion, anim_tim );
 	drawer->setModelMV1( model_mv1 );
 }

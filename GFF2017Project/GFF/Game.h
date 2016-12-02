@@ -4,6 +4,7 @@
 #include <string>
 
 PTR( Game );
+PTR( Player );
 
 class Game : public Task {
 public:
@@ -13,5 +14,9 @@ public:
 	Game( );
 	virtual ~Game( );
 public:
+	void initialize( );
 	void update( );
+	PlayerPtr getPlayer( ) const;
+private:
+	PlayerPtr _player;
 };
