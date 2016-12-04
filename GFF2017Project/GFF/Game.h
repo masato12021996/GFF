@@ -5,6 +5,7 @@
 
 PTR( Game );
 PTR( Player );
+PTR( StageManager );
 
 class Game : public Task {
 public:
@@ -17,6 +18,8 @@ public:
 	void initialize( );
 	void update( );
 	PlayerPtr getPlayer( ) const;
+	StageManagerPtr getStageManager( ) const;
 private:
 	PlayerPtr _player;
+	StageManagerPtr _stage_manager;
 };

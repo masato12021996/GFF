@@ -2,7 +2,7 @@
 #include "Animation.h"
 
 const Vector START_POS = Vector( 0.0, 0.0, 0.0 );
-const Vector START_DIR = Vector( 0.0, 0.0, -1.0 );
+const Vector START_DIR = Vector( 0.0, 0.0, 0.0 );
 
 const int WAIT_MAX = 600;
 

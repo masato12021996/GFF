@@ -1,6 +1,8 @@
 #include "Viewer.h"
 #include "Game.h"
 #include "Player.h"
+#include "StageManager.h"
+#include "StageBlock.h"
 #include "Animation.h"
 #include "Application.h"
 #include "Drawer.h"
@@ -37,7 +39,7 @@ Viewer::~Viewer( ) {
 
 void Viewer::update( ) {
 	//‚±‚±‚Å•`‰æˆ—
-	//drawStageMdl( );
+	drawStageMdl( );
 	drawPlayer( );
 }
 void Viewer::drawPlayer( ) {
@@ -56,6 +58,18 @@ void Viewer::drawPlayer( ) {
 
 void Viewer::drawStageMdl( ) {
 	DrawerPtr drawer = Drawer::getTask( );
-	Drawer::ModelMDL model_mdl = Drawer::ModelMDL( Vector( 0, 0, 0 ), MODEL_MDL_BOX );
-	drawer->setModelMDL( model_mdl );
+	
+	GamePtr game = Game::getTask( );
+	StageManagerPtr stage_manager = game->getStageManager( );
+	int stage_max = stage_manager->getMaxStageBlockNum( );
+	for ( int i = 0; i < stage_max; i++ ) {
+		StageBlockPtr stageBlock = stage_manager->getStageBlock( i );
+		Vector pos = stageBlock->getPos( );
+		pos.x *= stage_manager->getStageBlockWidth( ) * 3;
+		pos.y *= stage_manager->getStageBlockHeight( );
+		pos.y -= 1;
+		Drawer::ModelMDL model_mdl = Drawer::ModelMDL( pos, MODEL_MDL_BOX );
+		drawer->setModelMDL( model_mdl );
+	}
+	
 }
