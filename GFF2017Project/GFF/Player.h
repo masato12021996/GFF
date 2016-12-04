@@ -15,19 +15,22 @@ public:
 		STATE_MAX
 	};
 public:
-	void initialize( );
 	void update( );
 	Vector getPos( ) const;
 	Vector getDir( ) const;
 	STATE getState( ) const;
 	AnimationPtr getAnimation( ) const;
 private:
+	void deviceController( );
+	void move( );
 	void animationUpdate( );
+	void addForce( const Vector& vec );
 private:
-	Vector _pos;
-	Vector _dir;
-	STATE _state;
+	Vector _pos;	//à íu
+	Vector _dir;	//å¸Ç´
+	Vector _speed;	//ë¨ìx
+	Vector _force;	//â¡ë¨ìx
+	STATE _state;	//èÛë‘
 	AnimationPtr _animation;
-	int _wait_time;
 };
 

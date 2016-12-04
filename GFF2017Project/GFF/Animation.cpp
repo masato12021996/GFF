@@ -39,3 +39,7 @@ double Animation::getEndAnimTime( ) const {
 void Animation::setAnimationTime( double anim_time ) {
 	_anim_time = anim_time;
 }
+
+void Animation::setEndAnimationTime( double anim_time ) {
+	_max_anim_time = anim_time;
+}
