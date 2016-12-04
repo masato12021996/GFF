@@ -15,7 +15,6 @@ public:
 		STATE_MAX
 	};
 public:
-	void initialize( );
 	void update( );
 	Vector getPos( ) const;
 	Vector getDir( ) const;

@@ -19,10 +19,11 @@ public:
 	double getAnimTime( ) const;
 	double getEndAnimTime( ) const;
 	void setAnimationTime( double anim_time );
+	void setEndAnimationTime( double anim_time );
 private:
 	double _anim_time;
-	double _max_anim_time;
 	double _anim_speed;
+	double _max_anim_time;
 	MOTION _motion;
 };
 
