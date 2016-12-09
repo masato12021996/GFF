@@ -50,9 +50,12 @@ void Viewer::drawPlayer( ) {
 
 	Vector pos = player->getPos( );
 	Vector dir = player->getDir( );
+	Matrix mat = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 2 );
+	mat = Matrix::makeTransformScaling( Vector( 0.1, 0.1, 0.1 ) );
+
 	int motion = animation->getMotion( );
 	double anim_tim = animation->getAnimTime( );
-	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( pos, dir, motion, anim_tim );
+	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, motion, anim_tim );
 	drawer->setModelMV1( model_mv1 );
 }
 
