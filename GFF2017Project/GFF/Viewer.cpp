@@ -50,8 +50,10 @@ void Viewer::drawPlayer( ) {
 
 	Vector pos = player->getPos( );
 	Vector dir = player->getDir( );
-	Matrix mat = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 2 );
-	mat = Matrix::makeTransformScaling( Vector( 0.1, 0.1, 0.1 ) );
+	Matrix mat;
+	mat = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 2 * 3 );
+	//mat = Matrix::makeTransformScaling( Vector( 0.1, 0.1, 0.1 ) );
+	//mat = Matrix::makeTransformTranslation( pos );
 
 	int motion = animation->getMotion( );
 	double anim_tim = animation->getAnimTime( );
