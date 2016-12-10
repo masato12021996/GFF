@@ -7,6 +7,8 @@
 #include "Application.h"
 #include "Drawer.h"
 
+const double MV1_SCALE = 0.1;
+
 enum MODEL_MDL {
 	MODEL_MDL_BOX
 };
@@ -24,7 +26,7 @@ void Viewer::initialize( ) {
 	DrawerPtr drawer = Drawer::getTask( );
 	//ここでリソースの読み込み
 	//MV1モデルの読み込み
-	drawer->loadMV1Model( MODEL_MV1_PLAYER_WAIT, "Model/Player/player_wait.mv1", 0.1 );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_WAIT, "Model/Player/player_wait.mv1" );
 	//MDLファイルモデルの読み込み
 	drawer->loadMDLModel( MODEL_MDL_BOX, "Model/Stage/stage_box_dummy.mdl", "Model/Stage/stage_box_dummy_tex.jpg" );
 }
@@ -49,11 +51,12 @@ void Viewer::drawPlayer( ) {
 	AnimationPtr animation = player->getAnimation( );
 
 	Vector pos = player->getPos( );
-	Vector dir = player->getDir( );
-	Matrix mat;
-	mat = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 2 * 3 );
-	//mat = Matrix::makeTransformScaling( Vector( 0.1, 0.1, 0.1 ) );
-	//mat = Matrix::makeTransformTranslation( pos );
+	
+	Matrix mat_rot = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 2 * 3 );
+	Matrix mat_scale = Matrix::makeTransformScaling( Vector( MV1_SCALE, MV1_SCALE, MV1_SCALE ) );
+	Matrix mat_trans = Matrix::makeTransformTranslation( pos );
+	
+	Matrix mat = mat_rot * mat_scale * mat_trans;
 
 	int motion = animation->getMotion( );
 	double anim_tim = animation->getAnimTime( );
