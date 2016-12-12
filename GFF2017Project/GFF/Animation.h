@@ -6,7 +6,8 @@ PTR( Animation );
 class Animation {
 public:
 enum MOTION {
-	MOTION_PLAYER_WAIT,	     
+	MOTION_PLAYER_WAIT,	    
+	MOTION_PLAYER_RUN,	    
 	MOTION_MAX
 };
 public:

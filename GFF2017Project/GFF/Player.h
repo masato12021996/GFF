@@ -12,6 +12,7 @@ public:
 public:
 	enum STATE {
 		STATE_WAIT,
+		STATE_RUN,
 		STATE_MAX
 	};
 public:
@@ -25,6 +26,7 @@ private:
 	void move( );
 	void animationUpdate( );
 	void addForce( const Vector& vec );
+	void swicthStatus( );
 private:
 	Vector _pos;	//ˆÊ’u
 	Vector _dir;	//Œü‚«

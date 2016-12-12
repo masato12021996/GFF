@@ -20,6 +20,7 @@ Player::~Player( ) {
 void Player::update( ) {
 	deviceController( );//入力処理
 	move( );//移動更新処理
+	swicthStatus( );//状態更新
 	animationUpdate( );//描画に対するアニメーションの更新
 }
 
@@ -39,6 +40,13 @@ AnimationPtr Player::getAnimation( ) const {
 	return _animation;
 }
 
+void Player::swicthStatus( ) {
+	_state = STATE_WAIT;
+	if ( _speed.getLength( ) >= 0.1 ) {
+		_state = STATE_RUN;
+	}
+}
+
 void Player::animationUpdate( ) {
 	if ( _state == STATE_WAIT ) {
 		if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_WAIT ) {
@@ -47,6 +55,14 @@ void Player::animationUpdate( ) {
 			_animation->setAnimationTime( 0 );
 		}
 	}
+	if ( _state == STATE_RUN ) {
+		if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_RUN ) {
+			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_RUN ) );
+		} else if ( _animation->isEndAnimation( ) ) {
+			_animation->setAnimationTime( 0 );
+		}
+	}
+
 	_animation->update( );
 }
 
