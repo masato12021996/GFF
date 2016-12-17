@@ -13,6 +13,7 @@ public:
 	enum STATE {
 		STATE_WAIT,
 		STATE_RUN,
+		STATE_HOVER,
 		STATE_MAX
 	};
 public:

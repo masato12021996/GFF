@@ -5,6 +5,9 @@
 const Vector START_POS = Vector( 0.0, 0.0, 0.0 );
 const Vector START_DIR = Vector( 0.0, 0.0, 0.0 );
 
+const double MIN_RUN_SPEED = 0.1;
+const double MIN_HOVER_SPEED = 0.8;
+
 Player::Player( ) {
 	_pos = START_POS;
 	_dir = START_DIR;
@@ -42,8 +45,11 @@ AnimationPtr Player::getAnimation( ) const {
 
 void Player::swicthStatus( ) {
 	_state = STATE_WAIT;
-	if ( _speed.getLength( ) >= 0.1 ) {
+	if ( _speed.getLength( ) >= MIN_RUN_SPEED ) {
 		_state = STATE_RUN;
+	}
+	if ( _speed.getLength( ) >= MIN_HOVER_SPEED ) {
+		_state = STATE_HOVER;
 	}
 }
 
@@ -58,6 +64,13 @@ void Player::animationUpdate( ) {
 	if ( _state == STATE_RUN ) {
 		if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_RUN ) {
 			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_RUN ) );
+		} else if ( _animation->isEndAnimation( ) ) {
+			_animation->setAnimationTime( 0 );
+		}
+	}
+	if ( _state == STATE_HOVER ) {
+		if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_HOVER ) {
+			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_HOVER ) );
 		} else if ( _animation->isEndAnimation( ) ) {
 			_animation->setAnimationTime( 0 );
 		}
