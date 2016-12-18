@@ -1,10 +1,13 @@
 #include "Camera.h"
+#include "Game.h"
+#include "Player.h"
 #include "Application.h"
 #include "Mouse.h"
 #include "Keyboard.h"
 #include "Model.h"
 
 const Vector START_POS = Vector( 0, 10, -200 );
+const Vector TARGET_KEEP_LENGHT = Vector( 10, 0, 0 );
 
 CameraPtr Camera::getTask( ) {
 	ApplicationPtr fw = Application::getInstance( );
@@ -24,8 +27,19 @@ Camera::~Camera( ) {
 }
 
 void Camera::update( ) {
+	keepTargetLength( );
 	//rotateCameraforMouse( );
 }
+
+void Camera::keepTargetLength( ) {
+	GamePtr game = Game::getTask( ); 
+	PlayerPtr player = game->getPlayer( );
+	Vector player_pos = player->getPos( );
+	_target = player_pos + TARGET_KEEP_LENGHT;
+	ApplicationPtr app = Application::getInstance( );
+	app->setCamera( _target + _pos, _target );
+}
+
 
 //カメラのマウスでの回転処理
 void Camera::rotateCameraforMouse( ) {

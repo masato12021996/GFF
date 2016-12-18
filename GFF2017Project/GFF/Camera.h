@@ -11,11 +11,12 @@ public:
 	static CameraPtr getTask( );
 	static std::string getTag( ) { return "CAMERA"; }
 public:
-	Camera();
-	virtual ~Camera();
+	Camera( );
+	virtual ~Camera( );
 public:
 	void update( );
 private:
+	void keepTargetLength( );
 	void rotateCameraforMouse( );
 private:
 	Vector _pos;
