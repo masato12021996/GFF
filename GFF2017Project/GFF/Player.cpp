@@ -5,6 +5,10 @@
 const Vector START_POS = Vector( 0.0, 0.0, 0.0 );
 const Vector START_DIR = Vector( 0.0, 0.0, 0.0 );
 
+const double STATIC_FRICTION = 0.2;//Ã–€C—Í
+const double DYNAMIC_FRICTION = 0.1;//“®–€C—Í
+const double STATIC_FRICTION_RANGE = 0.01;//Ã–€C—Í‚Ì‹«–Ú
+
 const double MIN_RUN_SPEED = 0.1;
 const double MIN_HOVER_SPEED = 0.8;
 
@@ -15,7 +19,6 @@ Player::Player( ) {
 	_state = STATE_WAIT;
 	_animation = AnimationPtr( new Animation( ) );
 }
-
 
 Player::~Player( ) {
 }
@@ -75,7 +78,6 @@ void Player::animationUpdate( ) {
 			_animation->setAnimationTime( 0 );
 		}
 	}
-
 	_animation->update( );
 }
 
@@ -98,7 +100,11 @@ void Player::deviceController( ) {
 
 void Player::move( ) {
 	/*Œ¸‘¬ˆ—‚Í‚±‚¿‚ç*/
-	_force += _speed * -0.1;//ˆêŒ´‘¥
+	if ( _speed.getLength( ) < STATIC_FRICTION_RANGE ) {
+		_force += _speed * -STATIC_FRICTION;//Ã–€C
+	} else {
+		_force += _speed * -DYNAMIC_FRICTION;//“®–€C
+	}
 	_speed += _force;//‰Á‘¬‚·‚é
 
 	_force = Vector( 0, 0, 0 );//‰Á‘¬“x‚ğƒŠƒZƒbƒg‚·‚é
