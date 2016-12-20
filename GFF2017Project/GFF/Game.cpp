@@ -2,6 +2,8 @@
 #include "Player.h"
 #include "Application.h"
 #include "StageManager.h"
+#include "LoadCSV.h"
+
 
 GamePtr Game::getTask( ) {
 	ApplicationPtr application = Application::getInstance( );
@@ -25,9 +27,21 @@ StageManagerPtr Game::getStageManager( ) const {
 void Game::initialize( ) {
 	_player = PlayerPtr( new Player( ) );
 	_stage_manager = StageManagerPtr( new StageManager( ) );
-	_stage_manager->addStageBlock( Vector( 0, 0, 0 ) );
-	_stage_manager->addStageBlock( Vector( 1, 1, 0 ) );
-
+	LoadCSV csv;
+	csv.loadCsv( "../Resources/MapData/MapData.csv" );
+	int map_width = csv.getCsvWidth( );
+	int map_height = csv.getCsvHeight( );
+	_stage_manager ->setMaxBlockNum( map_width * map_height );
+	for ( int i = 0; i < map_width * map_height; i++ ) {
+		if ( csv.getCsvValue( i ) == 0 ) {
+			continue;
+		}
+		Vector pos;
+		pos.x = ( i % map_width );
+		pos.y =  map_height - ( i / map_width ) - 1;
+		pos.z = 0;
+		_stage_manager->addStageBlock( pos, i );
+	}
 }
 
 void Game::update( ) {

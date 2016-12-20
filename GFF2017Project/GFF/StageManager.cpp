@@ -6,7 +6,7 @@ const double STAGE_BLOCK_WIDTH = 8;
 const double STAGE_BLOCK_HEIGHT = 2.4;
 
 StageManager::StageManager( ) {
-	
+	_stage_block_max = 0;
 }
 
 
@@ -17,10 +17,13 @@ StageBlockPtr StageManager::getStageBlock( int idx ) {
 	return _stage_block[ idx ];
 }
 
-void StageManager::addStageBlock( Vector pos ) {
+void StageManager::addStageBlock( Vector pos, int idx ) {
 	StageBlockPtr stage_block = StageBlockPtr( new StageBlock( pos ) );
-	_stage_block.push_back( stage_block );
-	_stage_block_max++;
+	_stage_block[ idx ] = stage_block;
+}
+
+void StageManager::setMaxBlockNum( int num ) {
+	_stage_block_max = num;
 }
 
 double StageManager::getStageBlockWidth( ) {
