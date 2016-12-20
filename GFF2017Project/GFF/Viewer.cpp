@@ -16,7 +16,8 @@ enum MODEL_MDL {
 enum MODEL_MV1{
 	MODEL_MV1_PLAYER_WAIT,
 	MODEL_MV1_PLAYER_RUN,
-	MODEL_MV1_PLAYER_HOVER
+	MODEL_MV1_PLAYER_HOVER,
+	MODEL_MV1_PLAYER_TURBO
 };
 
 ViewerPtr Viewer::getTask( ) {
@@ -31,6 +32,7 @@ void Viewer::initialize( ) {
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_WAIT, "Model/Player/player_wait.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_RUN, "Model/Player/player_walk.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_HOVER, "Model/Player/player_hover.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_TURBO, "Model/Player/player_turbo.mv1" );
 	//MDLファイルモデルの読み込み
 	drawer->loadMDLModel( MODEL_MDL_BOX, "Model/Stage/stage_box_dummy.mdl", "Model/Stage/stage_box_dummy_tex.jpg" );
 }

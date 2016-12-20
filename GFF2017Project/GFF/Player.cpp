@@ -3,7 +3,7 @@
 #include "Device.h"
 
 const Vector START_POS = Vector( 0.0, 0.0, 0.0 );
-const Vector START_DIR = Vector( 0.0, 0.0, 0.0 );
+const Vector START_DIR = Vector( 1.0, 0.0, 0.0 );
 
 const double STATIC_FRICTION = 0.2;//静摩擦力
 const double DYNAMIC_FRICTION = 0.1;//動摩擦力
@@ -11,6 +11,7 @@ const double STATIC_FRICTION_RANGE = 0.01;//静摩擦力の境目
 
 const double MIN_RUN_SPEED = 0.1;
 const double MIN_HOVER_SPEED = 0.8;
+const double MIN_TURBO_SPEED = 1.6;
 
 Player::Player( ) {
 	_pos = START_POS;
@@ -54,6 +55,9 @@ void Player::swicthStatus( ) {
 	if ( _speed.getLength( ) >= MIN_HOVER_SPEED ) {
 		_state = STATE_HOVER;
 	}
+	if ( _speed.getLength( ) >= MIN_TURBO_SPEED ) {
+		_state = STATE_TURBO;
+	}
 }
 
 void Player::animationUpdate( ) {
@@ -78,6 +82,13 @@ void Player::animationUpdate( ) {
 			_animation->setAnimationTime( 0 );
 		}
 	}
+	if ( _state == STATE_TURBO ) {
+		if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_TURBO ) {
+			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_TURBO ) );
+		} else if ( _animation->isEndAnimation( ) ) {
+			_animation->setAnimationTime( 0 );
+		}
+	}
 	_animation->update( );
 }
 
@@ -92,6 +103,14 @@ void Player::deviceController( ) {
 		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
 		/*ここで加速度の調整*/
 		move_vec *= 0.001;
+		addForce( move_vec );
+	}
+
+	bool on_turbo = ( device->getButton( ) & BUTTON_D ) > 0;//turbo状態
+	if ( on_turbo ) {
+		Vector move_vec = _dir;//移動ベクトルを取る
+		/*ここで加速度の調整*/
+		move_vec *= 2;
 		addForce( move_vec );
 	}
 	//こっちは重力反転コマンドが押されたとき

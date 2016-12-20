@@ -14,6 +14,7 @@ public:
 		STATE_WAIT,
 		STATE_RUN,
 		STATE_HOVER,
+		STATE_TURBO,
 		STATE_MAX
 	};
 public:
