@@ -78,6 +78,9 @@ void Viewer::drawStageMdl( ) {
 	int stage_max = stage_manager->getMaxStageBlockNum( );
 	for ( int i = 0; i < stage_max; i++ ) {
 		StageBlockPtr stageBlock = stage_manager->getStageBlock( i );
+		if ( !stageBlock ) {
+			continue;
+		}
 		Vector pos = stageBlock->getPos( );
 		pos.x *= stage_manager->getStageBlockWidth( ) * 3;
 		pos.y *= stage_manager->getStageBlockHeight( );

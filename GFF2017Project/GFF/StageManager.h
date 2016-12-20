@@ -1,14 +1,15 @@
 #pragma once
 #include "smart_ptr.h"
 #include "mathmatics.h"
-#include <vector>
+#include <array>
 
 PTR( StageManager );
 PTR( StageBlock );
 
 class StageManager {
 public:
-
+	static const int STAGE_MAX_WIDTH = 1000;
+	static const int STAGE_MAX_HEIGHT = 100;
 public:
 	StageManager( );
 	virtual ~StageManager( );
@@ -16,11 +17,12 @@ public:
 	StageBlockPtr getStageBlock( int idx );
 	double getStageBlockWidth( );
 	double getStageBlockHeight( );
+	void setMaxBlockNum( int num );
 	int getMaxStageBlockNum( );
 	bool isHitBlock( Vector pos );
-	void addStageBlock( Vector pos );
+	void addStageBlock( Vector pos, int i );
 private:
-	std::vector< StageBlockPtr > _stage_block;
+	std::array< StageBlockPtr, STAGE_MAX_WIDTH * STAGE_MAX_HEIGHT > _stage_block;
 	int _stage_block_max;
 };
 
