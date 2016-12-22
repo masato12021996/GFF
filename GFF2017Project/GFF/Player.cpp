@@ -13,12 +13,15 @@ const double MIN_RUN_SPEED = 0.1;
 const double MIN_HOVER_SPEED = 0.8;
 const double MIN_TURBO_SPEED = 1.6;
 
+const double GRAVITY_FORCE = 9.8 / 60;
+
 Player::Player( ) {
 	_pos = START_POS;
 	_dir = START_DIR;
 	_force = Vector( 0, 0, 0 );
 	_state = STATE_WAIT;
 	_animation = AnimationPtr( new Animation( ) );
+	_fly_time = 0;
 }
 
 Player::~Player( ) {
@@ -98,12 +101,18 @@ void Player::deviceController( ) {
 	//アナログスティックのXの方向を取得
 	double dir_x = device->getDirX( );
 	//もし地面上に立っている場合
-	bool on_ground = true;
+	bool on_ground = false;
 	if ( on_ground ) {
 		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
 		/*ここで加速度の調整*/
 		move_vec *= 0.001;
 		addForce( move_vec );
+		_fly_time = 0;
+	} else {
+		_fly_time++;
+		Vector gravity_vec = Vector( 0, -1, 0 );
+		gravity_vec *= GRAVITY_FORCE * _fly_time;
+		addForce( gravity_vec );
 	}
 
 	bool on_turbo = ( device->getButton( ) & BUTTON_D ) > 0;//turbo状態
