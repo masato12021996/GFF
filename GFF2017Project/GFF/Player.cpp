@@ -13,7 +13,8 @@ const double MIN_RUN_SPEED = 0.1;
 const double MIN_HOVER_SPEED = 0.8;
 const double MIN_TURBO_SPEED = 1.6;
 
-const double GRAVITY_FORCE = 9.8 / 60;
+const double GRAVITY_FORCE = ( 9.8 / 60 ) / 100;
+const double JUMP_POWER = 10;
 
 Player::Player( ) {
 	_pos = START_POS;
@@ -101,7 +102,7 @@ void Player::deviceController( ) {
 	//アナログスティックのXの方向を取得
 	double dir_x = device->getDirX( );
 	//もし地面上に立っている場合
-	bool on_ground = false;
+	bool on_ground = true;
 	if ( on_ground ) {
 		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
 		/*ここで加速度の調整*/
@@ -110,9 +111,6 @@ void Player::deviceController( ) {
 		_fly_time = 0;
 	} else {
 		_fly_time++;
-		Vector gravity_vec = Vector( 0, -1, 0 );
-		gravity_vec *= GRAVITY_FORCE * _fly_time;
-		addForce( gravity_vec );
 	}
 
 	bool on_turbo = ( device->getButton( ) & BUTTON_D ) > 0;//turbo状態
@@ -122,19 +120,37 @@ void Player::deviceController( ) {
 		move_vec *= 2;
 		addForce( move_vec );
 	}
+
+	bool on_jump = ( device->getButton( ) & BUTTON_C ) > 0;//ジャンプ状態
+	if ( on_jump && on_ground ) {
+		Vector move_vec = Vector( 0, 1, 0 );//移動ベクトルを取る
+		/*ここで加速度の調整*/
+		move_vec *= JUMP_POWER;
+		addForce( move_vec );
+	}
 	//こっちは重力反転コマンドが押されたとき
 
 }
 
 void Player::move( ) {
 	/*減速処理はこちら*/
-	if ( _speed.getLength( ) < STATIC_FRICTION_RANGE ) {
-		_force += _speed * -STATIC_FRICTION;//静摩擦
-	} else {
-		_force += _speed * -DYNAMIC_FRICTION;//動摩擦
+
+	//摩擦
+	bool on_ground = true;
+	if ( on_ground ) {
+		if ( _speed.getLength( ) < STATIC_FRICTION_RANGE ) {
+			addForce( _speed * -STATIC_FRICTION );//静摩擦
+		} else {
+			addForce( _speed * -DYNAMIC_FRICTION );//動摩擦
+		}
+	}
+	{//重力
+		Vector gravity_vec = Vector( 0, -1, 0 );
+		gravity_vec *= GRAVITY_FORCE * _fly_time;
+		addForce( gravity_vec );
 	}
 	_speed += _force;//加速する
-
+	
 	_force = Vector( 0, 0, 0 );//加速度をリセットする
 	//移動判定はこちら
 	bool can_move = true;
