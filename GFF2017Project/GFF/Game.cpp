@@ -31,19 +31,21 @@ void Game::initialize( ) {
 	csv.loadCsv( "../Resources/MapData/MapData.csv" );
 	int map_width = csv.getCsvWidth( );
 	int map_height = csv.getCsvHeight( );
-	_stage_manager ->setMaxBlockNum( map_width * map_height );
-	for ( int i = 0; i < map_width * map_height; i++ ) {
+	_stage_manager->setStageWidth( map_width );
+	_stage_manager->setStageHeight( map_height );
+	for ( int i = ( map_width * map_height ) - 1; i > 0; i-- ) {
 		if ( csv.getCsvValue( i ) == 0 ) {
 			continue;
 		}
 		Vector pos;
-		pos.x = ( i % map_width );
-		pos.y =  map_height - ( i / map_width ) - 1;
+		pos.x = ( ( i ) % map_width );
+		pos.y =  map_height - ( ( i ) / map_width ) - 1;
 		pos.z = 0;
-		_stage_manager->addStageBlock( pos, i );
+		_stage_manager->addStageBlock( pos, ( map_width * map_height ) - ( i + 1 )  );
 	}
 }
 
 void Game::update( ) {
 	_player->update( );
+	_stage_manager->isHitBlock( Vector( 0, 1, 0 ) );
 }

@@ -76,17 +76,19 @@ void Viewer::drawStageMdl( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_manager = game->getStageManager( );
 	int stage_max = stage_manager->getMaxStageBlockNum( );
-	for ( int i = 0; i < stage_max; i++ ) {
+	int block_width = stage_manager->STAGE_MAX_WIDTH;
+	int block_height = ( int )stage_manager->getStageBlockHeight( );
+
+	for ( int i = 0; i < StageManager::STAGE_MAX_HEIGHT * StageManager::STAGE_MAX_WIDTH; i++ ) {
 		StageBlockPtr stageBlock = stage_manager->getStageBlock( i );
 		if ( !stageBlock ) {
 			continue;
 		}
 		Vector pos = stageBlock->getPos( );
-		pos.x *= stage_manager->getStageBlockWidth( ) * 3;
+		pos.x *= stage_manager->getStageBlockWidth( );
 		pos.y *= stage_manager->getStageBlockHeight( );
 		pos.y -= 1;
 		Drawer::ModelMDL model_mdl = Drawer::ModelMDL( pos, MODEL_MDL_BOX );
 		drawer->setModelMDL( model_mdl );
 	}
-	
 }

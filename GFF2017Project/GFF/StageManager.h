@@ -18,11 +18,15 @@ public:
 	double getStageBlockWidth( );
 	double getStageBlockHeight( );
 	void setMaxBlockNum( int num );
+	void setStageWidth( int width );
+	void setStageHeight( int height );
 	int getMaxStageBlockNum( );
 	bool isHitBlock( Vector pos );
 	void addStageBlock( Vector pos, int i );
 private:
 	std::array< StageBlockPtr, STAGE_MAX_WIDTH * STAGE_MAX_HEIGHT > _stage_block;
 	int _stage_block_max;
+	int _stage_width;
+	int _stage_height;
 };
 
