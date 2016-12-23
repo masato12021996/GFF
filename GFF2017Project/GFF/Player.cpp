@@ -1,6 +1,8 @@
 #include "Player.h"
 #include "Animation.h"
 #include "Device.h"
+#include "Game.h"
+#include "StageManager.h"
 
 const Vector START_POS = Vector( 0.0, 0.0, 0.0 );
 const Vector START_DIR = Vector( 1.0, 0.0, 0.0 );
@@ -12,9 +14,10 @@ const double STATIC_FRICTION_RANGE = 0.01;//静摩擦力の境目
 const double MIN_RUN_SPEED = 0.1;
 const double MIN_HOVER_SPEED = 0.8;
 const double MIN_TURBO_SPEED = 1.6;
+const double MAX_SPEED = 2.0;
 
 const double GRAVITY_FORCE = ( 9.8 / 60 ) / 100;
-const double JUMP_POWER = 10;
+const double JUMP_POWER = 1;
 
 Player::Player( ) {
 	_pos = START_POS;
@@ -102,7 +105,7 @@ void Player::deviceController( ) {
 	//アナログスティックのXの方向を取得
 	double dir_x = device->getDirX( );
 	//もし地面上に立っている場合
-	bool on_ground = true;
+	bool on_ground = onGround( );
 	if ( on_ground ) {
 		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
 		/*ここで加速度の調整*/
@@ -112,7 +115,7 @@ void Player::deviceController( ) {
 	} else {
 		_fly_time++;
 	}
-
+	//ターボ
 	bool on_turbo = ( device->getButton( ) & BUTTON_D ) > 0;//turbo状態
 	if ( on_turbo ) {
 		Vector move_vec = _dir;//移動ベクトルを取る
@@ -120,7 +123,7 @@ void Player::deviceController( ) {
 		move_vec *= 2;
 		addForce( move_vec );
 	}
-
+	//重力
 	bool on_jump = ( device->getButton( ) & BUTTON_C ) > 0;//ジャンプ状態
 	if ( on_jump && on_ground ) {
 		Vector move_vec = Vector( 0, 1, 0 );//移動ベクトルを取る
@@ -136,13 +139,14 @@ void Player::move( ) {
 	/*減速処理はこちら*/
 
 	//摩擦
-	bool on_ground = true;
+	bool on_ground = onGround( );
 	if ( on_ground ) {
 		if ( _speed.getLength( ) < STATIC_FRICTION_RANGE ) {
-			addForce( _speed * -STATIC_FRICTION );//静摩擦
+			addForce( Vector( 1, 0, 0 ) * _speed.getLength( ) * -STATIC_FRICTION );//静摩擦
 		} else {
-			addForce( _speed * -DYNAMIC_FRICTION );//動摩擦
+			addForce( Vector( 1, 0, 0 ) * _speed.getLength( ) * -DYNAMIC_FRICTION );//動摩擦
 		}
+		addForce( Vector( 0, 1, 0 ) * _speed.y * 0.1 );//垂直抗力
 	}
 	{//重力
 		Vector gravity_vec = Vector( 0, -1, 0 );
@@ -150,15 +154,37 @@ void Player::move( ) {
 		addForce( gravity_vec );
 	}
 	_speed += _force;//加速する
+	if ( _speed.x > MAX_SPEED ) {
+		_speed = Vector( MAX_SPEED, _speed.y, _speed.z );
+	}
 	
 	_force = Vector( 0, 0, 0 );//加速度をリセットする
 	//移動判定はこちら
-	bool can_move = true;
-	if ( can_move ) {
-		_pos += _speed;
+	bool can_move = canMove( );
+	if ( !can_move ) {
+		_pos -= _speed * 1.01;
 	}
+	_pos += _speed;
 }
 
 void Player::addForce( const Vector& force ) {
 	_force += force;
+}
+
+bool Player::onGround( ) {
+	GamePtr game = Game::getTask( );
+	StageManagerPtr stage_mgr = game->getStageManager( );
+	bool result = stage_mgr->isHitBlock( _pos + Vector( 0, -0.1, 0 ) );
+	return result;
+}
+
+bool Player::canMove( ) {
+	GamePtr game = Game::getTask( );
+	StageManagerPtr stage_mgr = game->getStageManager( );
+	bool result = !stage_mgr->isHitBlock( _pos + _speed );
+	return result;
+}
+
+Vector Player::getSpeed( ) const {
+	return _speed;
 }

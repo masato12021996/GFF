@@ -23,12 +23,15 @@ public:
 	Vector getDir( ) const;
 	STATE getState( ) const;
 	AnimationPtr getAnimation( ) const;
+	Vector getSpeed( ) const;
 private:
 	void deviceController( );
 	void move( );
 	void animationUpdate( );
 	void addForce( const Vector& vec );
 	void swicthStatus( );
+	bool onGround( );
+	bool canMove( );
 private:
 	Vector _pos;	//ˆÊ’u
 	Vector _dir;	//Œü‚«
