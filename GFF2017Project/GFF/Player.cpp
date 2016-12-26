@@ -27,6 +27,7 @@ Player::Player( ) {
 	_state = STATE_WAIT;
 	_animation = AnimationPtr( new Animation( ) );
 	_fly_time = 0;
+	_before_device_button = 0;
 }
 
 Player::~Player( ) {
@@ -133,10 +134,11 @@ void Player::deviceController( ) {
 		addForce( move_vec );
 	}
 	//‚±‚Á‚¿‚Íd—Í”½“]ƒRƒ}ƒ“ƒh‚ª‰Ÿ‚³‚ê‚½‚Æ‚«
-	bool is_revers_gravity = ( device->getButton( ) & BUTTON_A ) > 0;//d—Í”½“]ó‘Ô
+	bool is_revers_gravity = ( ( device->getButton( ) & BUTTON_A ) > 0 ) && ( ( _before_device_button & BUTTON_A ) == 0 );//d—Í”½“]ó‘Ô
 	if ( is_revers_gravity ) {
 		_gravity_vec *= -1;
 	}
+	_before_device_button = device->getButton( );
 }
 
 void Player::move( ) {

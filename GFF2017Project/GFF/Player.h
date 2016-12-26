@@ -40,6 +40,8 @@ private:
 	STATE _state;	//ó‘Ô
 	int _fly_time;	//‘Ø‹óŠÔ
 	Vector _gravity_vec;//d—ÍŒü‚«
+
+	int _before_device_button;
 	AnimationPtr _animation;
 };
 
