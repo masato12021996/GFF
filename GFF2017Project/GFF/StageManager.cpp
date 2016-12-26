@@ -31,8 +31,8 @@ void StageManager::setStageHeight( int height ) {
 }
 
 bool StageManager::isHitBlock( Vector pos ) {
-	int x = ( ( int )pos.x + ( ( int )STAGE_BLOCK_WIDTH / 2 ) ) / ( int )STAGE_BLOCK_WIDTH;
-	int y = ( int )pos.y / ( int )STAGE_BLOCK_HEIGHT;
+	int x = ( int )( ( pos.x + ( STAGE_BLOCK_WIDTH / 2 ) ) / STAGE_BLOCK_WIDTH );
+	int y = ( int )( ( pos.y + STAGE_BLOCK_HEIGHT ) / STAGE_BLOCK_HEIGHT );
 	if ( x < 0 ) {
 		x = 0;
 	}

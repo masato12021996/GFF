@@ -4,7 +4,7 @@
 #include "Game.h"
 #include "StageManager.h"
 
-const Vector START_POS = Vector( 0.0, 0.0, 0.0 );
+const Vector START_POS = Vector( 0.0, 3.0, 0.0 );
 const Vector START_DIR = Vector( 1.0, 0.0, 0.0 );
 
 const double STATIC_FRICTION = 0.2;//ê√ñÄéCóÕ
@@ -16,7 +16,7 @@ const double MIN_HOVER_SPEED = 0.8;
 const double MIN_TURBO_SPEED = 1.6;
 const double MAX_SPEED = 2.0;
 
-const double GRAVITY_FORCE = ( 9.8 / 60 ) / 100;
+const double GRAVITY_FORCE = ( 9.8 / 60 ) / 25;
 const double JUMP_POWER = 1;
 
 Player::Player( ) {
@@ -142,11 +142,11 @@ void Player::move( ) {
 	bool on_ground = onGround( );
 	if ( on_ground ) {
 		if ( _speed.getLength( ) < STATIC_FRICTION_RANGE ) {
-			addForce( Vector( 1, 0, 0 ) * _speed.getLength( ) * -STATIC_FRICTION );//ê√ñÄéC
+			addForce( _speed * -STATIC_FRICTION );//ê√ñÄéC
 		} else {
-			addForce( Vector( 1, 0, 0 ) * _speed.getLength( ) * -DYNAMIC_FRICTION );//ìÆñÄéC
+			addForce( _speed * -DYNAMIC_FRICTION );//ìÆñÄéC
 		}
-		addForce( Vector( 0, 1, 0 ) * _speed.y * 0.1 );//êÇíºçRóÕ
+		_speed = Vector( _speed.x, 0, _speed.z );
 	}
 	{//èdóÕ
 		Vector gravity_vec = Vector( 0, -1, 0 );
@@ -161,8 +161,9 @@ void Player::move( ) {
 	_force = Vector( 0, 0, 0 );//â¡ë¨ìxÇÉäÉZÉbÉgÇ∑ÇÈ
 	//à⁄ìÆîªíËÇÕÇ±ÇøÇÁ
 	bool can_move = canMove( );
-	if ( !can_move ) {
-		_pos -= _speed * 1.01;
+	while ( !can_move ) {
+		_speed *= 0.99;
+		can_move = canMove( );
 	}
 	_pos += _speed;
 }
