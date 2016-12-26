@@ -56,7 +56,7 @@ void Viewer::drawPlayer( ) {
 	DrawerPtr drawer = Drawer::getTask( );
 	AnimationPtr animation = player->getAnimation( );
 
-	Vector pos = player->getPos( );
+	Vector pos = player->getPos( ) + Vector( 0, -1, 0 );
 	
 	Matrix mat_rot = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 2 * 3 );
 	Matrix mat_scale = Matrix::makeTransformScaling( Vector( MV1_SCALE, MV1_SCALE, MV1_SCALE ) );

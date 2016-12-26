@@ -127,7 +127,7 @@ void Player::deviceController( ) {
 	//重力
 	bool on_jump = ( ( device->getButton( ) & BUTTON_C ) > 0 ) && on_ground;//ジャンプ状態
 	if ( on_jump ) {
-		Vector move_vec = Vector( 0, 1, 0 );//移動ベクトルを取る
+		Vector move_vec = _gravity_vec * -1;//移動ベクトルを取る
 		/*ここで加速度の調整*/
 		move_vec *= JUMP_POWER;
 		addForce( move_vec );
@@ -179,7 +179,7 @@ void Player::addForce( const Vector& force ) {
 bool Player::onGround( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_mgr = game->getStageManager( );
-	bool result = stage_mgr->isHitBlock( _pos + ( _gravity_vec * 0.1 ) );
+	bool result = stage_mgr->isHitBlock( _pos + ( _gravity_vec * 2 ) );
 	return result;
 }
 
