@@ -39,6 +39,7 @@ private:
 	Vector _force;	//‰Á‘¬“x
 	STATE _state;	//ó‘Ô
 	int _fly_time;	//‘Ø‹óŠÔ
+	Vector _gravity_vec;//d—ÍŒü‚«
 	AnimationPtr _animation;
 };
 

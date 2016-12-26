@@ -23,6 +23,7 @@ Player::Player( ) {
 	_pos = START_POS;
 	_dir = START_DIR;
 	_force = Vector( 0, 0, 0 );
+	_gravity_vec = Vector( 0, -1, 0 );
 	_state = STATE_WAIT;
 	_animation = AnimationPtr( new Animation( ) );
 	_fly_time = 0;
@@ -124,15 +125,18 @@ void Player::deviceController( ) {
 		addForce( move_vec );
 	}
 	//重力
-	bool on_jump = ( device->getButton( ) & BUTTON_C ) > 0;//ジャンプ状態
-	if ( on_jump && on_ground ) {
-		Vector move_vec = Vector( 0, 1, 0 );//移動ベクトルを取る
+	bool on_jump = ( ( device->getButton( ) & BUTTON_C ) > 0 ) && on_ground;//ジャンプ状態
+	if ( on_jump ) {
+		Vector move_vec = _gravity_vec * -1;//移動ベクトルを取る
 		/*ここで加速度の調整*/
 		move_vec *= JUMP_POWER;
 		addForce( move_vec );
 	}
 	//こっちは重力反転コマンドが押されたとき
-
+	bool is_revers_gravity = ( device->getButton( ) & BUTTON_A ) > 0;//重力反転状態
+	if ( is_revers_gravity ) {
+		_gravity_vec *= -1;
+	}
 }
 
 void Player::move( ) {
@@ -149,7 +153,7 @@ void Player::move( ) {
 		_speed = Vector( _speed.x, 0, _speed.z );
 	}
 	{//重力
-		Vector gravity_vec = Vector( 0, -1, 0 );
+		Vector gravity_vec = _gravity_vec;
 		gravity_vec *= GRAVITY_FORCE * _fly_time;
 		addForce( gravity_vec );
 	}
@@ -175,7 +179,7 @@ void Player::addForce( const Vector& force ) {
 bool Player::onGround( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_mgr = game->getStageManager( );
-	bool result = stage_mgr->isHitBlock( _pos + Vector( 0, -0.1, 0 ) );
+	bool result = stage_mgr->isHitBlock( _pos + ( _gravity_vec * 2 ) );
 	return result;
 }
 
