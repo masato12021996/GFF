@@ -4,7 +4,7 @@
 #include "Game.h"
 #include "StageManager.h"
 
-const Vector START_POS = Vector( 0.0, 0.0, 0.0 );
+const Vector START_POS = Vector( 0.0, 3.0, 0.0 );
 const Vector START_DIR = Vector( 1.0, 0.0, 0.0 );
 
 const double STATIC_FRICTION = 0.2;//静摩擦力
@@ -16,7 +16,7 @@ const double MIN_HOVER_SPEED = 0.8;
 const double MIN_TURBO_SPEED = 1.6;
 const double MAX_SPEED = 2.0;
 
-const double GRAVITY_FORCE = ( 9.8 / 60 ) / 100;
+const double GRAVITY_FORCE = ( 9.8 / 60 ) / 25;
 const double JUMP_POWER = 1;
 
 Player::Player( ) {
@@ -106,7 +106,7 @@ void Player::deviceController( ) {
 	double dir_x = device->getDirX( );
 	//もし地面上に立っている場合
 	bool on_ground = onGround( );
-	if ( on_ground ) {
+	if ( on_ground && dir_x > 0 ) {
 		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
 		/*ここで加速度の調整*/
 		move_vec *= 0.001;
@@ -146,7 +146,7 @@ void Player::move( ) {
 		} else {
 			addForce( Vector( 1, 0, 0 ) * _speed.getLength( ) * -DYNAMIC_FRICTION );//動摩擦
 		}
-		addForce( Vector( 0, 1, 0 ) * _speed.y * 0.1 );//垂直抗力
+		_speed = Vector( _speed.x, 0, _speed.z );
 	}
 	{//重力
 		Vector gravity_vec = Vector( 0, -1, 0 );
@@ -161,8 +161,9 @@ void Player::move( ) {
 	_force = Vector( 0, 0, 0 );//加速度をリセットする
 	//移動判定はこちら
 	bool can_move = canMove( );
-	if ( !can_move ) {
-		_pos -= _speed * 1.01;
+	while ( !can_move ) {
+		_speed *= 0.99;
+		can_move = canMove( );
 	}
 	_pos += _speed;
 }
