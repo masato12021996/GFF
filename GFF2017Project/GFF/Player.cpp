@@ -106,7 +106,7 @@ void Player::deviceController( ) {
 	double dir_x = device->getDirX( );
 	//もし地面上に立っている場合
 	bool on_ground = onGround( );
-	if ( on_ground && dir_x > 0 ) {
+	if ( on_ground ) {
 		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
 		/*ここで加速度の調整*/
 		move_vec *= 0.001;
@@ -142,9 +142,9 @@ void Player::move( ) {
 	bool on_ground = onGround( );
 	if ( on_ground ) {
 		if ( _speed.getLength( ) < STATIC_FRICTION_RANGE ) {
-			addForce( Vector( 1, 0, 0 ) * _speed.getLength( ) * -STATIC_FRICTION );//静摩擦
+			addForce( _speed * -STATIC_FRICTION );//静摩擦
 		} else {
-			addForce( Vector( 1, 0, 0 ) * _speed.getLength( ) * -DYNAMIC_FRICTION );//動摩擦
+			addForce( _speed * -DYNAMIC_FRICTION );//動摩擦
 		}
 		_speed = Vector( _speed.x, 0, _speed.z );
 	}
