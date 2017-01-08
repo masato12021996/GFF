@@ -181,15 +181,15 @@ void Player::addForce( const Vector& force ) {
 bool Player::onGround( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_mgr = game->getStageManager( );
-	bool result = stage_mgr->isHitBlock( _pos + ( _gravity_vec * 2 ) );
-	return result;
+	//bool result = stage_mgr->isHitBlock( _pos + ( _gravity_vec * 2 ) );
+	return true;
 }
 
 bool Player::canMove( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_mgr = game->getStageManager( );
-	bool result = !stage_mgr->isHitBlock( _pos + _speed );
-	return result;
+//	bool result = !stage_mgr->isHitBlock( _pos + _speed );
+	return true;
 }
 
 Vector Player::getSpeed( ) const {

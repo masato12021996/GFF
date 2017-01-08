@@ -33,7 +33,7 @@ void Game::initialize( ) {
 	int map_height = csv.getCsvHeight( );
 	_stage_manager->setStageWidth( map_width );
 	_stage_manager->setStageHeight( map_height );
-	for ( int i = ( map_width * map_height ) - 1; i > 0; i-- ) {
+	for ( int i = ( map_width * map_height ) - 1; i >= 0; i-- ) {
 		if ( csv.getCsvValue( i ) == 0 ) {
 			continue;
 		}
@@ -47,5 +47,5 @@ void Game::initialize( ) {
 
 void Game::update( ) {
 	_player->update( );
-	_stage_manager->isHitBlock( Vector( 0, 1, 0 ) );
+//	_stage_manager->isHitBlock( Vector( 0, 1, 0 ) );
 }
