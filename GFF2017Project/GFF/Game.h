@@ -6,6 +6,7 @@
 PTR( Game );
 PTR( Player );
 PTR( StageManager );
+PTR( CameraCtr );
 
 class Game : public Task {
 public:
@@ -22,4 +23,5 @@ public:
 private:
 	PlayerPtr _player;
 	StageManagerPtr _stage_manager;
+	CameraCtrPtr _camera_ctr;
 };

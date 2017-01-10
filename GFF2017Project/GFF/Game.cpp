@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Player.h"
+#include "CameraCtr.h"
 #include "Application.h"
 #include "StageManager.h"
 #include "LoadCSV.h"
@@ -27,6 +28,7 @@ StageManagerPtr Game::getStageManager( ) const {
 void Game::initialize( ) {
 	_player = PlayerPtr( new Player( ) );
 	_stage_manager = StageManagerPtr( new StageManager( ) );
+	_camera_ctr = CameraCtrPtr( new CameraCtr( ) );
 	LoadCSV csv;
 	csv.loadCsv( "../Resources/MapData/MapData.csv" );
 	int map_width = csv.getCsvWidth( );
@@ -47,5 +49,6 @@ void Game::initialize( ) {
 
 void Game::update( ) {
 	_player->update( );
+	_camera_ctr->update( );
 //	_stage_manager->isHitBlock( Vector( 0, 1, 0 ) );
 }

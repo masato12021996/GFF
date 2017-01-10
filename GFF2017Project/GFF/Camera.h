@@ -6,21 +6,19 @@
 
 PTR( Camera );
 
-class Camera : public Task {
-public:
-	static CameraPtr getTask( );
-	static std::string getTag( ) { return "CAMERA"; }
+class Camera {
 public:
 	Camera( );
 	virtual ~Camera( );
 public:
 	void update( );
-private:
-	void keepTargetLength( );
-	void rotateCameraforMouse( );
+	void setCameraPos( Vector pos );
+	void setTargetPos( Vector target );
+	Vector getCameraPos( );
+	Vector getTargetPos( );
+	Vector getCameraOriginalPos( );
 private:
 	Vector _pos;
 	Vector _target; 
-	Vector _before_mouse_pos;
 };
 
