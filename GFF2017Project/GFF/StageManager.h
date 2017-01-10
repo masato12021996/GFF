@@ -22,7 +22,7 @@ public:
 	void setStageHeight( int height );
 	int getMaxStageBlockNum( );
 	double cross ( Vector a, Vector b );
-	Vector raycastBlock( Vector origin_pos, Vector dir, bool is_trans_gravity );
+	Vector raycastBlock( Vector origin_pos, Vector dir );
 	void addStageBlock( Vector pos, int i );
 private:
 	std::array< StageBlockPtr, STAGE_MAX_WIDTH * STAGE_MAX_HEIGHT > _stage_block;

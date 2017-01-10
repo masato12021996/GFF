@@ -68,6 +68,7 @@ void Viewer::drawPlayer( ) {
 	double anim_tim = animation->getAnimTime( );
 	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, motion, anim_tim );
 	drawer->setModelMV1( model_mv1 );
+
 }
 
 void Viewer::drawStageMdl( ) {

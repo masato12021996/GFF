@@ -32,19 +32,31 @@ void StageManager::setStageHeight( int height ) {
 double StageManager::cross ( Vector a, Vector b ) {
 	return a.x * b.y - a.y * b.x;
 } 
-Vector StageManager::raycastBlock( Vector origin_pos, Vector dir, bool is_trans_gravity ) {
-	int x = ( int )( ( dir.x + ( STAGE_BLOCK_WIDTH / 2 ) ) / STAGE_BLOCK_WIDTH );
-	int y = ( int )( ( dir.y + STAGE_BLOCK_HEIGHT ) / STAGE_BLOCK_HEIGHT );
-	if ( x < 0 ) {
-		x = 0;
+Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
+	Vector ray = dir - origin_pos;
+	Vector multiple_normalize_ray = ray.normalize( );
+	int multiple = 0;
+	int idx = -1;
+	while ( dir.getLength( ) > multiple_normalize_ray.getLength( ) ) {
+
+		multiple_normalize_ray = ray.normalize( ) * multiple;
+		multiple_normalize_ray += origin_pos;
+
+		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) ) / STAGE_BLOCK_WIDTH );
+		int y = ( int )( ( multiple_normalize_ray.y + ( STAGE_BLOCK_HEIGHT / 2 ) ) / STAGE_BLOCK_HEIGHT );
+		if ( x < 0 ) {
+			x = 0;
+		}
+		if ( y < 0 ) {
+			y = 0;
+		}
+		idx = x + y * _stage_width;
+		if( _stage_block[ idx ] ) {
+			break;
+		}
+		multiple++;
 	}
-	if ( y < 0 ) {
-		y = 0;
-	}
-	int idx = x + y * _stage_width;
-	if( !_stage_block[ idx ] ) {
-		return dir;
-	}
+	
 	Vector block_center = _stage_block[ idx ]->getPos( );
 	//ブロックの左上
 	Vector plane_point_a = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
@@ -55,26 +67,32 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir, bool is_trans_
 	//ブロックの右下
 	Vector plane_point_d = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
 
-	Vector block_origin_pos;
-	Vector block_dir;
-	if ( is_trans_gravity ) {
-		block_origin_pos = plane_point_c;
-		block_dir = plane_point_d;
-	} else {
-		block_origin_pos = plane_point_a;
-		block_dir = plane_point_b;
-	}
+	Vector block_origin_pos[ 4 ] = { plane_point_a, plane_point_a, plane_point_d, plane_point_d };
+	Vector block_dir[ 4 ] = { plane_point_b, plane_point_c, plane_point_b, plane_point_c };
 	
 	Vector a1 = origin_pos;
 	Vector a2 = dir;
-	Vector b1 = block_origin_pos;
-	Vector b2 = block_dir;
-	Vector a = a2 - a1;
-	Vector b = b2 - b1;
-	double d1 = cross( b, b1 - a1 );
-	double d2 = cross( b, a );
-	Vector out = a1 + a * ( 1 / d2 ) * d1 ;
-	return out;
+	Vector final_out = dir;
+	for ( int i = 0; i < 4; i++ ) {
+		
+		Vector b1 = block_origin_pos[ i ];
+		Vector b2 = block_dir[ i ];
+		if( ( cross(a2-a1, b1-a1) * cross(a2-a1, b2-a1) > 0.0001 ) ||
+			( cross(b2-b1, a1-b1) * cross(b2-b1, a2-b1) > 0.0001 ) ) {
+			continue;
+		}
+		Vector a = a2 - a1;
+		Vector b = b2 - b1;
+		double d1 = cross( b, b1 - a1 );
+		double d2 = cross( b, a );
+		Vector out = a1 + a * ( 1 / d2 ) * d1 ;
+		bool near_for_origin = ( final_out - origin_pos ).getLength( ) > ( out - origin_pos ).getLength( );
+		if ( near_for_origin ) {
+			final_out = out;
+		}
+	}
+
+	return final_out;
 	
 }
 
