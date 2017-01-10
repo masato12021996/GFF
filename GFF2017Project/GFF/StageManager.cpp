@@ -57,6 +57,9 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 		multiple++;
 	}
 	
+	if ( !_stage_block[ idx ] ) {
+		return dir;
+	}
 	Vector block_center = _stage_block[ idx ]->getPos( );
 	//ÉuÉçÉbÉNÇÃç∂è„
 	Vector plane_point_a = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
