@@ -32,34 +32,34 @@ void StageManager::setStageHeight( int height ) {
 double StageManager::cross ( Vector a, Vector b ) {
 	return a.x * b.y - a.y * b.x;
 } 
+
+//判定先がいなかったらオリジンPOSを返す。
 Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	Vector ray = dir - origin_pos;
 	Vector multiple_normalize_ray = ray.normalize( );
 	int multiple = 0;
 	int idx = -1;
-	while ( dir.getLength( ) > multiple_normalize_ray.getLength( ) ) {
+	while ( dir.getLength( ) >= multiple_normalize_ray.getLength( ) ) {
 
 		multiple_normalize_ray = ray.normalize( ) * multiple;
 		multiple_normalize_ray += origin_pos;
 
 		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) ) / STAGE_BLOCK_WIDTH );
 		int y = ( int )( ( multiple_normalize_ray.y + ( STAGE_BLOCK_HEIGHT / 2 ) ) / STAGE_BLOCK_HEIGHT );
-		if ( x < 0 ) {
-			x = 0;
-		}
-		if ( y < 0 ) {
-			y = 0;
-		}
 		idx = x + y * _stage_width;
+		multiple++;
+		if ( idx < 0 || _stage_block.size( ) <= idx ) {
+			continue;
+		}
 		if( _stage_block[ idx ] ) {
 			break;
 		}
-		multiple++;
 	}
 	
-	if ( !_stage_block[ idx ] ) {
-		return dir;
+	if ( idx < 0 || _stage_block.size( ) <= idx || !_stage_block[ idx ] ) {
+		return origin_pos;
 	}
+
 	Vector block_center = _stage_block[ idx ]->getPos( );
 	//ブロックの左上
 	Vector plane_point_a = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
@@ -75,7 +75,7 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	
 	Vector a1 = origin_pos;
 	Vector a2 = dir;
-	Vector final_out = dir;
+	Vector final_out = origin_pos;
 	for ( int i = 0; i < 4; i++ ) {
 		
 		Vector b1 = block_origin_pos[ i ];
@@ -89,7 +89,7 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 		double d1 = cross( b, b1 - a1 );
 		double d2 = cross( b, a );
 		Vector out = a1 + a * ( 1 / d2 ) * d1 ;
-		bool near_for_origin = ( final_out - origin_pos ).getLength( ) > ( out - origin_pos ).getLength( );
+		bool near_for_origin = ( final_out - dir ).getLength( ) > ( out - origin_pos ).getLength( );
 		if ( near_for_origin ) {
 			final_out = out;
 		}

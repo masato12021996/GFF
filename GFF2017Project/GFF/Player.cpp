@@ -181,8 +181,8 @@ void Player::addForce( const Vector& force ) {
 bool Player::onGround( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_mgr = game->getStageManager( );
-	//bool result = stage_mgr->isHitBlock( _pos + ( _gravity_vec * 2 ) );
-	return true;
+	bool result =  !( _pos == stage_mgr->raycastBlock( _pos, _gravity_vec.normalize( ) ) );
+	return result;
 }
 
 bool Player::canMove( ) {
