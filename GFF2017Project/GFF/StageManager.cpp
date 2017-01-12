@@ -40,15 +40,18 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	int multiple = 0;
 	int idx = -1;
 	while ( dir.getLength( ) >= multiple_normalize_ray.getLength( ) ) {
-
+		idx = -1;
 		multiple_normalize_ray = ray.normalize( ) * multiple;
 		multiple_normalize_ray += origin_pos;
 
-		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) ) / STAGE_BLOCK_WIDTH );
-		int y = ( int )( ( multiple_normalize_ray.y + ( STAGE_BLOCK_HEIGHT / 2 ) ) / STAGE_BLOCK_HEIGHT );
-		idx = x + y * _stage_width;
+		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) * multiple_normalize_ray.normalize( ).x ) / STAGE_BLOCK_WIDTH );
+		int y = ( int )( ( multiple_normalize_ray.y ) / STAGE_BLOCK_HEIGHT );
 		multiple++;
-		if ( idx < 0 || _stage_block.size( ) <= idx ) {
+		if ( x < 0 || y < 0 || STAGE_MAX_WIDTH < x || STAGE_MAX_HEIGHT < y ) {
+			continue;
+		}
+		idx = x + y * _stage_width;
+		if ( _stage_block.size( ) <= idx ) {
 			continue;
 		}
 		if( _stage_block[ idx ] ) {
@@ -56,7 +59,7 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 		}
 	}
 	
-	if ( idx < 0 || _stage_block.size( ) <= idx || !_stage_block[ idx ] ) {
+	if ( idx < 0 || !_stage_block[ idx ] ) {
 		return origin_pos;
 	}
 
@@ -75,9 +78,8 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	
 	Vector a1 = origin_pos;
 	Vector a2 = dir;
-	Vector final_out = origin_pos;
+	Vector final_out = dir;
 	for ( int i = 0; i < 4; i++ ) {
-		
 		Vector b1 = block_origin_pos[ i ];
 		Vector b2 = block_dir[ i ];
 		if( ( cross(a2-a1, b1-a1) * cross(a2-a1, b2-a1) > 0.0001 ) ||
@@ -89,7 +91,7 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 		double d1 = cross( b, b1 - a1 );
 		double d2 = cross( b, a );
 		Vector out = a1 + a * ( 1 / d2 ) * d1 ;
-		bool near_for_origin = ( final_out - dir ).getLength( ) > ( out - origin_pos ).getLength( );
+		bool near_for_origin = ( final_out - origin_pos ).getLength( ) > ( out - origin_pos ).getLength( );
 		if ( near_for_origin ) {
 			final_out = out;
 		}
