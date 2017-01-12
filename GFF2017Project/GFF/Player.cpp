@@ -4,7 +4,7 @@
 #include "Game.h"
 #include "StageManager.h"
 
-const Vector START_POS = Vector( 0.0, 3.0, 0.0 );
+const Vector START_POS = Vector( 0.0, 5.0, 0.0 );
 const Vector START_DIR = Vector( 1.0, 0.0, 0.0 );
 
 const double STATIC_FRICTION = 0.2;//静摩擦力
@@ -18,6 +18,8 @@ const double MAX_SPEED = 2.0;
 
 const double GRAVITY_FORCE = ( 9.8 / 60 ) / 25;
 const double JUMP_POWER = 1;
+
+const double PLAYER_HEIGHT = 2;
 
 Player::Player( ) {
 	_pos = START_POS;
@@ -167,9 +169,11 @@ void Player::move( ) {
 	_force = Vector( 0, 0, 0 );//加速度をリセットする
 	//移動判定はこちら
 	bool can_move = canMove( );
-	while ( !can_move ) {
-		_speed *= 0.99;
-		can_move = canMove( );
+	if ( !can_move ) {
+		GamePtr game = Game::getTask( );
+		StageManagerPtr stage_mgr = game->getStageManager( );
+		Vector hit_pos = stage_mgr->raycastBlock( _pos, _speed );
+		_speed = hit_pos - _pos;
 	}
 	_pos += _speed;
 }
@@ -181,15 +185,15 @@ void Player::addForce( const Vector& force ) {
 bool Player::onGround( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_mgr = game->getStageManager( );
-	bool result =  !( _pos == stage_mgr->raycastBlock( _pos, _gravity_vec.normalize( ) ) );
-	return result;
+	//bool result =  !( _pos == stage_mgr->raycastBlock( _pos, _gravity_vec.normalize( ) * ( PLAYER_HEIGHT / 2 ) ) );
+	return false;
 }
 
 bool Player::canMove( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_mgr = game->getStageManager( );
-//	bool result = !stage_mgr->isHitBlock( _pos + _speed );
-	return true;
+	bool result =  ( _pos == stage_mgr->raycastBlock( _pos, _speed ) );
+	return result;
 }
 
 Vector Player::getSpeed( ) const {

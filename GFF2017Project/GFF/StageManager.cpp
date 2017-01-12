@@ -37,7 +37,7 @@ double StageManager::cross ( Vector a, Vector b ) {
 Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	Vector ray = dir - origin_pos;
 	Vector multiple_normalize_ray = ray.normalize( );
-	int multiple = 0;
+	double multiple = 0;
 	int idx = -1;
 	while ( dir.getLength( ) >= multiple_normalize_ray.getLength( ) ) {
 		idx = -1;
@@ -46,7 +46,12 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 
 		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) * multiple_normalize_ray.normalize( ).x ) / STAGE_BLOCK_WIDTH );
 		int y = ( int )( ( multiple_normalize_ray.y ) / STAGE_BLOCK_HEIGHT );
-		multiple++;
+		if ( dir.getLength( ) < STAGE_BLOCK_HEIGHT ) {
+			multiple++;
+		} else {
+			multiple += 0.1;
+		}
+
 		if ( x < 0 || y < 0 || STAGE_MAX_WIDTH < x || STAGE_MAX_HEIGHT < y ) {
 			continue;
 		}
