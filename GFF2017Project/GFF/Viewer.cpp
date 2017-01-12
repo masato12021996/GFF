@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "StageManager.h"
 #include "StageBlock.h"
+#include "Field.h"
 #include "Animation.h"
 #include "Application.h"
 #include "Drawer.h"
@@ -159,15 +160,14 @@ void Viewer::drawStageMdl( ) {
 	int stage_max = stage_manager->getMaxStageBlockNum( );
 	int block_width = stage_manager->STAGE_MAX_WIDTH;
 	int block_height = ( int )stage_manager->getStageBlockHeight( );
-
 	for ( int i = 0; i < StageManager::STAGE_MAX_HEIGHT * StageManager::STAGE_MAX_WIDTH; i++ ) {
 		StageBlockPtr stageBlock = stage_manager->getStageBlock( i );
 		if ( !stageBlock ) {
 			continue;
 		}
 		Vector pos = stageBlock->getPos( );
-		pos.x *= stage_manager->getStageBlockWidth( );
-		pos.y *= stage_manager->getStageBlockHeight( );
+		pos.x *= Field::FX_TO_MX;
+		pos.y *= Field::FY_TO_MY;
 		pos.y -= 1;
 		Drawer::ModelMDL model_mdl = Drawer::ModelMDL( pos, MODEL_MDL_BOX );
 		drawer->setModelMDL( model_mdl );

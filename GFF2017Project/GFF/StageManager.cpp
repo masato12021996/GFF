@@ -61,12 +61,10 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	Vector ray = dir - origin_pos;
 	Vector multiple_normalize_ray = ray.normalize( );
 	FieldPtr field = app->getField( );
-	int multiple = 0;
-	int idx = -1;
+	double multiple = 0;
 	Field::FieldContents field_block;
-	while ( dir.getLength( ) > multiple_normalize_ray.getLength( ) ) {
+	while ( dir.getLength( ) >= multiple_normalize_ray.getLength( ) ) {
 
-		multiple_normalize_ray = ray.normalize( ) * multiple;
 		multiple_normalize_ray += origin_pos;
 
 		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) ) / Field::FX_TO_MX );
@@ -78,10 +76,12 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 			y = 0;
 		}
 		field_block = field->getFieldBlock( x, y );
-		if( field_block.x > 0 && field_block.y > 0 ) {
+		if( field_block.x >= 0 && field_block.y >= 0 ) {
 			break;
 		}
-		multiple++;
+		multiple += 0.5;
+		multiple_normalize_ray = ray.normalize( ) * multiple;
+
 	}
 	
 	if ( field_block.x < 0 || field_block.y < 0 ) {
@@ -89,7 +89,7 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	}
 	
 	Vector block_center;
-	block_center.x = field_block.x;
+	block_center.x = field_block.x * Field::FX_TO_MX;
 	block_center.y = field_block.y;
 
 	//ƒuƒƒbƒN‚Ì¶ã

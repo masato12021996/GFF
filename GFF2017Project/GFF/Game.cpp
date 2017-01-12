@@ -39,7 +39,7 @@ void Game::initialize( ) {
 	csv.loadCsv( "../Resources/MapData/MapData.csv" );
 	int map_width = csv.getCsvWidth( );
 	int map_height = csv.getCsvHeight( );
-	_field->setFieldWidth( map_width );
+	_field->setFieldWidth( map_width + 8 );
 	_stage_manager->setStageWidth( map_width );
 	_stage_manager->setStageHeight( map_height );
 	for ( int i = ( map_width * map_height ) - 1; i >= 0; i-- ) {
