@@ -18,4 +18,5 @@ public:
 private:
 	void drawPlayer( );
 	void drawStageMdl( );
+	void drawLimitTime( );
 };

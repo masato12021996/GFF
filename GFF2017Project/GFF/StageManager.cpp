@@ -1,12 +1,16 @@
 #include "StageManager.h"
 #include "StageBlock.h"
+#include "Timer.h"
 
 
 const double STAGE_BLOCK_WIDTH = 24;
 const double STAGE_BLOCK_HEIGHT = 2;
+const int LIMIT_TIME = 30;
+
 
 StageManager::StageManager( ) {
 	_stage_block_max = 0;
+	_timer = TimerPtr( new Timer( LIMIT_TIME ) );
 }
 
 
@@ -22,6 +26,22 @@ void StageManager::addStageBlock( Vector pos, int idx ) {
 	_stage_block[ idx ] = stage_block;
 }
 
+int StageManager::getTimeCount( ) {
+	return _timer->getTimeCount( );
+}
+
+void StageManager::timerStart( ) {
+	_timer->timerStart( );
+}
+
+bool StageManager::isTimeLimit( ) {
+	return _timer->isTimeLimit( );
+}
+
+bool StageManager::isTimerStart( ) {
+	return _timer->isTimerStart( );
+}
+
 void StageManager::setStageWidth( int width ) {
 	_stage_width = width;
 }
@@ -29,9 +49,11 @@ void StageManager::setStageWidth( int width ) {
 void StageManager::setStageHeight( int height ) {
 	_stage_height = height;
 }
+
 double StageManager::cross ( Vector a, Vector b ) {
 	return a.x * b.y - a.y * b.x;
 } 
+
 Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	Vector ray = dir - origin_pos;
 	Vector multiple_normalize_ray = ray.normalize( );

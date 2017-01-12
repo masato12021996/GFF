@@ -48,6 +48,9 @@ void Game::initialize( ) {
 }
 
 void Game::update( ) {
+	if ( !_stage_manager->isTimerStart( ) ) {
+		_stage_manager->timerStart( );
+	}
 	_player->update( );
 	_camera_ctr->update( );
 //	_stage_manager->isHitBlock( Vector( 0, 1, 0 ) );
