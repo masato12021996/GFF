@@ -94,7 +94,7 @@ void Viewer::drawLimitTime( ) {
 	int time = stage_manager->getTimeCount( );
 	int second = time / 1000;
 	int milli = ( time / 10 ) % 100;
-	if ( milli <= 9 ) {
+	if ( milli <= 9 && second != 0 ) {
 		milli = 99 - milli;
 	}
 	int y = TIME_Y;
