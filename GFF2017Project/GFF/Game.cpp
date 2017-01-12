@@ -3,6 +3,7 @@
 #include "CameraCtr.h"
 #include "Application.h"
 #include "StageManager.h"
+#include "Field.h"
 #include "LoadCSV.h"
 
 
@@ -25,14 +26,20 @@ StageManagerPtr Game::getStageManager( ) const {
 	return _stage_manager;
 }
 
+FieldPtr Game::getField( ) const {
+	return _field;
+}
+
 void Game::initialize( ) {
 	_player = PlayerPtr( new Player( ) );
 	_stage_manager = StageManagerPtr( new StageManager( ) );
 	_camera_ctr = CameraCtrPtr( new CameraCtr( ) );
+	_field = FieldPtr( new Field( ) );
 	LoadCSV csv;
 	csv.loadCsv( "../Resources/MapData/MapData.csv" );
 	int map_width = csv.getCsvWidth( );
 	int map_height = csv.getCsvHeight( );
+	_field->setFieldWidth( map_width + 8 );
 	_stage_manager->setStageWidth( map_width );
 	_stage_manager->setStageHeight( map_height );
 	for ( int i = ( map_width * map_height ) - 1; i >= 0; i-- ) {
@@ -43,6 +50,7 @@ void Game::initialize( ) {
 		pos.x = ( ( i ) % map_width );
 		pos.y =  map_height - ( ( i ) / map_width ) - 1;
 		pos.z = 0;
+		_field->setFieldBlock( ( int )pos.x , ( int )pos.y );
 		_stage_manager->addStageBlock( pos, ( map_width * map_height ) - ( i + 1 )  );
 	}
 }
