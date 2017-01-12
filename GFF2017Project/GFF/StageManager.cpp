@@ -1,6 +1,8 @@
 #include "StageManager.h"
 #include "StageBlock.h"
 #include "Timer.h"
+#include "Field.h"
+#include "Game.h"
 
 
 const double STAGE_BLOCK_WIDTH = 24;
@@ -55,34 +57,41 @@ double StageManager::cross ( Vector a, Vector b ) {
 } 
 
 Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
+	GamePtr app = Game::getTask( );
 	Vector ray = dir - origin_pos;
 	Vector multiple_normalize_ray = ray.normalize( );
+	FieldPtr field = app->getField( );
 	int multiple = 0;
 	int idx = -1;
+	Field::FieldContents field_block;
 	while ( dir.getLength( ) > multiple_normalize_ray.getLength( ) ) {
 
 		multiple_normalize_ray = ray.normalize( ) * multiple;
 		multiple_normalize_ray += origin_pos;
 
-		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) ) / STAGE_BLOCK_WIDTH );
-		int y = ( int )( ( multiple_normalize_ray.y + ( STAGE_BLOCK_HEIGHT / 2 ) ) / STAGE_BLOCK_HEIGHT );
+		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) ) / Field::FX_TO_MX );
+		int y = ( int )( ( multiple_normalize_ray.y + ( STAGE_BLOCK_HEIGHT / 2 ) ) / Field::FY_TO_MY );
 		if ( x < 0 ) {
 			x = 0;
 		}
 		if ( y < 0 ) {
 			y = 0;
 		}
-		idx = x + y * _stage_width;
-		if( _stage_block[ idx ] ) {
+		field_block = field->getFieldBlock( x, y );
+		if( field_block.x > 0 && field_block.y > 0 ) {
 			break;
 		}
 		multiple++;
 	}
 	
-	if ( !_stage_block[ idx ] ) {
+	if ( field_block.x < 0 || field_block.y < 0 ) {
 		return dir;
 	}
-	Vector block_center = _stage_block[ idx ]->getPos( );
+	
+	Vector block_center;
+	block_center.x = field_block.x;
+	block_center.y = field_block.y;
+
 	//ブロックの左上
 	Vector plane_point_a = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
 	//ブロックの右上

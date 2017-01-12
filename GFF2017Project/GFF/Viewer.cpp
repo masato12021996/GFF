@@ -84,6 +84,9 @@ void Viewer::drawPlayer( ) {
 	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, motion, anim_tim );
 	drawer->setModelMV1( model_mv1 );
 
+	StageManagerPtr stage_manager = game->getStageManager( );
+	Vector ans = stage_manager->raycastBlock( pos, Vector( pos.x, pos.y - 3 ) );
+	drawer->drawString( 0, 0, "x:%lf, y:%lf", ans.x, ans.y );
 }
 
 void Viewer::drawLimitTime( ) {
