@@ -202,7 +202,6 @@ void Viewer::drawStageMdl( ) {
 			Vector pos = stageBlock->getPos( );
 			pos.x *= Field::FX_TO_MX;
 			pos.y *= Field::FY_TO_MY;
-			pos.y -= 1;
 			Drawer::ModelMDL model_mdl = Drawer::ModelMDL( pos, MODEL_MDL_BOX );
 			drawer->setModelMDL( model_mdl );
 		}
@@ -211,7 +210,7 @@ void Viewer::drawStageMdl( ) {
 			Vector pos = debri->getPos( );
 			pos.x *= Field::FX_TO_MX;
 			pos.y *= Field::FY_TO_MY;
-			pos.y -= 2;
+			pos.y -= 1;
 			Drawer::ModelMDL model_mdl = Drawer::ModelMDL( pos, MODEL_MDL_DEBRI );
 			drawer->setModelMDL( model_mdl );
 		}

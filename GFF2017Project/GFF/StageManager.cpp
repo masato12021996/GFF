@@ -1,11 +1,17 @@
 #include "StageManager.h"
 #include "StageBlock.h"
 #include "Debri.h"
+#include "Field.h"
 #include "Timer.h"
+#include "Game.h"
 
 
 const double STAGE_BLOCK_WIDTH = 24;
 const double STAGE_BLOCK_HEIGHT = 2;
+
+const double DEBRI_WIDTH = 3;
+const double DEBRI_HEIGHT = 2;
+
 
 StageManager::StageManager( ) {
 	_stage_obj_max = 0;
@@ -50,63 +56,102 @@ double StageManager::cross ( Vector a, Vector b ) {
 } 
 
 //判定先がいなかったらオリジンPOSを返す。
-Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
+Vector StageManager::raycastBlock( Vector origin_pos, Vector next_pos ) {
+	GamePtr app = Game::getTask( );
+	Vector dir = origin_pos + next_pos;
 	Vector ray = dir - origin_pos;
-	Vector multiple_normalize_ray = ray.normalize( );
-	double multiple = 0;
-	int idx = -1;
-	while ( dir.getLength( ) >= multiple_normalize_ray.getLength( ) ) {
-		idx = -1;
-		multiple_normalize_ray = ray.normalize( ) * multiple;
-		multiple_normalize_ray += origin_pos;
 
-		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) * multiple_normalize_ray.normalize( ).x ) / STAGE_BLOCK_WIDTH );
-		int y = ( int )( ( multiple_normalize_ray.y ) / STAGE_BLOCK_HEIGHT );
-		if ( dir.getLength( ) > STAGE_BLOCK_HEIGHT ) {
-			multiple++;
-		} else {
-			multiple += 0.1;
-		}
-
-		if ( x < 0 || y < 0 || STAGE_MAX_WIDTH < x || STAGE_MAX_HEIGHT < y ) {
-			continue;
-		}
-		idx = x + y * _stage_width;
-		if ( _stage_block.size( ) <= idx ) {
-			continue;
-		}
-		if( _stage_block[ idx ] ) {
-			break;
-		}
-	}
-	
-	if ( idx < 0 || !_stage_block[ idx ] ) {
+	if ( ray.getLength( ) == 0 ) {
 		return origin_pos;
 	}
+	Vector multiple_normalize_ray = ray.normalize( );
+	FieldPtr field = app->getField( );
+	double multiple = 0;
+	Field::FieldContents field_block;
+	field_block.x = -1;
+	field_block.y = -1;
+	multiple_normalize_ray = Vector ( 0, 0, 0 );
 
-	Vector block_center = _stage_block[ idx ]->getPos( );
-	//ブロックの左上
-	Vector plane_point_a = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-	//ブロックの右上
-	Vector plane_point_b = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-	//ブロックの左下
-	Vector plane_point_c = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-	//ブロックの右下
-	Vector plane_point_d = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
+	while ( ray.getLength( ) >= multiple_normalize_ray.getLength( ) ) {
 
+		multiple_normalize_ray += origin_pos;
+
+		int x = ( int )( ( multiple_normalize_ray.x + ( DEBRI_WIDTH / 2 ) ) / Field::FX_TO_MX );
+		int y = ( int )( ( multiple_normalize_ray.y ) / Field::FY_TO_MY );
+	
+		multiple += 0.5;
+		multiple_normalize_ray = ray.normalize( ) * multiple;
+
+		if ( x < 0 ) {
+			x = 0;
+		}
+		
+		if ( y < 0 ) {
+			y = 0;
+		}
+
+		if ( x >= STAGE_MAX_WIDTH ) {
+			x = STAGE_MAX_WIDTH - 1;
+		}
+
+		if ( y >= STAGE_MAX_HEIGHT ) {
+			y = STAGE_MAX_HEIGHT - 1;
+		}
+
+		field_block = field->getFieldObj( x, y );
+		if( field_block.x >= 0 && field_block.y >= 0 ) {
+			break;
+		}
+		
+	}
+
+	if ( field_block.x < 0 || field_block.y < 0 ) {
+		return origin_pos;
+	}
+	
+	Vector block_center;
+	block_center.x = field_block.x * Field::FX_TO_MX;
+	block_center.y = field_block.y;
+	Vector plane_point_a;
+	Vector plane_point_b;
+	Vector plane_point_c;
+	Vector plane_point_d;
+	if ( field_block.tag == Field::FIELD_OBJ_BLOCK ) {
+		//ブロックの左上
+		plane_point_a = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
+		//ブロックの右上
+		plane_point_b = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
+		//ブロックの左下
+		plane_point_c = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
+		//ブロックの右下
+		plane_point_d = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
+	}
+	if ( field_block.tag == Field::FIELD_OBJ_DEBRI ) {
+		plane_point_a = Vector( block_center.x - ( DEBRI_WIDTH / 2 ), block_center.y + ( DEBRI_HEIGHT / 2 ), 0 );
+		//ブロックの右上
+		plane_point_b = Vector( block_center.x + ( DEBRI_WIDTH / 2 ), block_center.y + ( DEBRI_HEIGHT / 2 ), 0 );
+		//ブロックの左下
+		plane_point_c = Vector( block_center.x - ( DEBRI_WIDTH / 2 ), block_center.y - ( DEBRI_HEIGHT / 2 ), 0 );
+		//ブロックの右下
+		plane_point_d = Vector( block_center.x + ( DEBRI_WIDTH / 2 ), block_center.y - ( DEBRI_HEIGHT / 2 ), 0 );
+	}
+	
 	Vector block_origin_pos[ 4 ] = { plane_point_a, plane_point_a, plane_point_d, plane_point_d };
 	Vector block_dir[ 4 ] = { plane_point_b, plane_point_c, plane_point_b, plane_point_c };
 	
 	Vector a1 = origin_pos;
 	Vector a2 = dir;
 	Vector final_out = dir;
+	bool is_not_closs = true;
 	for ( int i = 0; i < 4; i++ ) {
+		
 		Vector b1 = block_origin_pos[ i ];
 		Vector b2 = block_dir[ i ];
 		if( ( cross(a2-a1, b1-a1) * cross(a2-a1, b2-a1) > 0.0001 ) ||
 			( cross(b2-b1, a1-b1) * cross(b2-b1, a2-b1) > 0.0001 ) ) {
 			continue;
 		}
+		is_not_closs = false;
 		Vector a = a2 - a1;
 		Vector b = b2 - b1;
 		double d1 = cross( b, b1 - a1 );
@@ -117,7 +162,9 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 			final_out = out;
 		}
 	}
-
+	if ( is_not_closs ) {
+		final_out = origin_pos;
+	}
 	return final_out;
 	
 }
