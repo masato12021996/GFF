@@ -22,6 +22,7 @@ public:
 	PlayerPtr getPlayer( ) const;
 	StageManagerPtr getStageManager( ) const;
 	FieldPtr getField( ) const;
+	CameraCtrPtr getCameraCtr( ) const;
 private:
 	PlayerPtr _player;
 	FieldPtr _field;

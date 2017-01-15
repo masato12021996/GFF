@@ -19,4 +19,8 @@ private:
 	void drawPlayer( );
 	void drawStageMdl( );
 	void drawLimitTime( );
+	void drawBackTower( );
+	void drawBackGround( );
+private:
+	double _back_tower_angle;
 };

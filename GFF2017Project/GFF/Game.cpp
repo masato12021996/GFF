@@ -26,6 +26,10 @@ StageManagerPtr Game::getStageManager( ) const {
 	return _stage_manager;
 }
 
+CameraCtrPtr Game::getCameraCtr( ) const {
+	return _camera_ctr;
+}
+
 FieldPtr Game::getField( ) const {
 	return _field;
 }

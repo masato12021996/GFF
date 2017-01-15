@@ -64,3 +64,7 @@ void CameraCtr::keepTargetLength( ) {
 	target.x -= _camera_target_buffer;
 	_camera->setTargetPos( target );
 }
+
+CameraPtr CameraCtr::getCamera( ) {
+	return _camera;
+}

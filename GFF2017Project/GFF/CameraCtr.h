@@ -10,6 +10,7 @@ public:
 	virtual ~CameraCtr( );
 public:
 	void update( );
+	CameraPtr getCamera( );
 private:
 	void keepTargetLength( );
 private:

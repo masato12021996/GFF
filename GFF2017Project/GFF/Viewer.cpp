@@ -1,6 +1,8 @@
 #include "Viewer.h"
 #include "Game.h"
 #include "Player.h"
+#include "CameraCtr.h"
+#include "Camera.h"
 #include "StageManager.h"
 #include "StageBlock.h"
 #include "Debri.h"
@@ -17,19 +19,23 @@ const int TIME_HEIGHT = 128;
 const int TIME_NUM_WIDTH = 64;
 const int TIME_COLON_WIDTH = 32;
 const int TIME_COLON_NUM = 10;
+//小さいほどに回転が速くなる
+const int TOWER_ROTATE_SPEED = 20;
 
 
 enum MODEL_MDL {
 	MODEL_MDL_BOX,
 	MODEL_MDL_DEBRI,
-	MODEL_MDL_BACK_TOWER,
 };
 
 enum MODEL_MV1{
 	MODEL_MV1_PLAYER_WAIT,
 	MODEL_MV1_PLAYER_RUN,
 	MODEL_MV1_PLAYER_HOVER,
-	MODEL_MV1_PLAYER_TURBO
+	MODEL_MV1_PLAYER_TURBO,
+	MODEL_MV1_BACK_GROUND,
+	MODEL_MV1_BACK_TOWER,
+
 };
 
 enum RES {
@@ -49,14 +55,17 @@ void Viewer::initialize( ) {
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_RUN, "Model/Player/player_walk.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_HOVER, "Model/Player/player_hover.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_TURBO, "Model/Player/player_turbo.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_BACK_GROUND, "Model/Stage/back_ground.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_BACK_TOWER, "Model/Stage/back_tower.mv1" );
+
 	//MDLファイルモデルの読み込み
 	drawer->loadMDLModel( MODEL_MDL_BOX, "Model/Stage/stage_box_dummy.mdl", "Model/Stage/box_tex.jpg" );
 	drawer->loadMDLModel( MODEL_MDL_DEBRI, "Model/Stage/debri.mdl", "Model/Stage/debri_tex.jpg" );
-	drawer->loadMDLModel( MODEL_MDL_BACK_TOWER, "Model/Stage/back_tower.mdl", "Model/Stage/back_obj02_01_tex.jpg" );
 
 
 	//UIグラフィック
 	drawer->loadGraph( RES_UI, "UI/UI_number_REDandWHITE.png" );
+	_back_tower_angle = 0;
 }
 
 Viewer::Viewer( ) {
@@ -71,6 +80,8 @@ void Viewer::update( ) {
 	//ここで描画処理
 	drawStageMdl( );
 	drawPlayer( );
+	drawBackTower( );
+	drawBackGround( );
 	drawLimitTime( );
 }
 void Viewer::drawPlayer( ) {
@@ -187,3 +198,49 @@ void Viewer::drawStageMdl( ) {
 	}
 }
 
+void Viewer::drawBackTower( ) {
+	
+	DrawerPtr drawer = Drawer::getTask( );
+	GamePtr game = Game::getTask( );
+
+	CameraCtrPtr camera_ctr = game->getCameraCtr( );
+	CameraPtr camera = camera_ctr->getCamera( );
+	Vector camera_pos = camera->getTargetPos( );
+	camera_pos.z = 0;
+	Vector pos = Vector ( 0, 0, 0 );
+	pos += camera_pos;
+	pos.z = 100;
+	PlayerPtr player = game->getPlayer( );
+	_back_tower_angle += ( player->getSpeed( ).x / TOWER_ROTATE_SPEED );
+	Matrix mat_rot = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), _back_tower_angle );
+	Matrix mat_scale = Matrix::makeTransformScaling( Vector( MV1_SCALE * 0.7, MV1_SCALE * 0.7, MV1_SCALE * 0.7 ) );
+	Matrix mat_trans = Matrix::makeTransformTranslation( pos );
+	
+	Matrix mat = mat_rot * mat_scale * mat_trans;
+
+	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, MODEL_MV1_BACK_TOWER, 0 );
+	drawer->setModelMV1( model_mv1 );
+
+	
+}
+
+
+
+void Viewer::drawBackGround( ) {
+	DrawerPtr drawer = Drawer::getTask( );
+	GamePtr game = Game::getTask( );
+	CameraCtrPtr camera_ctr = game->getCameraCtr( );
+	CameraPtr camera = camera_ctr->getCamera( );
+	Vector camera_pos = camera->getTargetPos( );
+	camera_pos.z = 0;
+	Vector pos = Vector( 7, 7, 120 );
+	pos += camera_pos;
+	Matrix mat_rot = Matrix::makeTransformRotation( Vector( 0, 0, 0 ), 0 );
+	Matrix mat_scale = Matrix::makeTransformScaling( Vector( MV1_SCALE * 1, MV1_SCALE * 1, MV1_SCALE * 1 ) );
+	Matrix mat_trans = Matrix::makeTransformTranslation( pos );
+	
+	Matrix mat = mat_rot * mat_scale * mat_trans;
+
+	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, MODEL_MV1_BACK_GROUND, 0 );
+	drawer->setModelMV1( model_mv1 );
+}
