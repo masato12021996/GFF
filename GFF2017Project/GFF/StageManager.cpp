@@ -46,7 +46,7 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 
 		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) * multiple_normalize_ray.normalize( ).x ) / STAGE_BLOCK_WIDTH );
 		int y = ( int )( ( multiple_normalize_ray.y ) / STAGE_BLOCK_HEIGHT );
-		if ( dir.getLength( ) < STAGE_BLOCK_HEIGHT ) {
+		if ( dir.getLength( ) > STAGE_BLOCK_HEIGHT ) {
 			multiple++;
 		} else {
 			multiple += 0.1;
