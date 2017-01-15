@@ -4,7 +4,7 @@
 #include "Game.h"
 #include "StageManager.h"
 
-const Vector START_POS = Vector( 0.0, 3.0, 0.0 );
+const Vector START_POS = Vector( 0.0, 2.5, 0.0 );
 const Vector START_DIR = Vector( 1.0, 0.0, 0.0 );
 
 const double STATIC_FRICTION = 0.2;//静摩擦力
@@ -16,8 +16,10 @@ const double MIN_HOVER_SPEED = 0.8;
 const double MIN_TURBO_SPEED = 1.6;
 const double MAX_SPEED = 2.0;
 
-const double GRAVITY_FORCE = ( 9.8 / 60 ) / 25;
+const double GRAVITY_FORCE = ( 9.8 / 60 ) / 50;
 const double JUMP_POWER = 1;
+
+const double PLAYER_RANGE = 2;
 
 Player::Player( ) {
 	_pos = START_POS;
@@ -109,30 +111,35 @@ void Player::deviceController( ) {
 	//もし地面上に立っている場合
 	bool on_ground = onGround( );
 	if ( on_ground ) {
+		//歩行
 		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
-		/*ここで加速度の調整*/
 		move_vec *= 0.001;
 		addForce( move_vec );
-		_fly_time = 0;
+
+		//ジャンプ
+		bool on_jump = ( device->getButton( ) & BUTTON_C ) > 0;//ジャンプ状態
+		if ( on_jump ) {
+			Vector move_vec = _gravity_vec * -1;//移動ベクトルを取る
+			/*ここで加速度の調整*/
+			move_vec *= JUMP_POWER;
+			addForce( move_vec );
+		}
 	} else {
-		_fly_time++;
+		//空中歩行
+		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
+		move_vec *= 0.0001;
+		addForce( move_vec );		
 	}
+
 	//ターボ
 	bool on_turbo = ( device->getButton( ) & BUTTON_D ) > 0;//turbo状態
 	if ( on_turbo ) {
-		Vector move_vec = _dir;//移動ベクトルを取る
+		Vector move_vec = Vector( 1, 0, 0 );//移動ベクトルを取る
 		/*ここで加速度の調整*/
 		move_vec *= 2;
 		addForce( move_vec );
 	}
-	//重力
-	bool on_jump = ( ( device->getButton( ) & BUTTON_C ) > 0 ) && on_ground;//ジャンプ状態
-	if ( on_jump ) {
-		Vector move_vec = _gravity_vec * -1;//移動ベクトルを取る
-		/*ここで加速度の調整*/
-		move_vec *= JUMP_POWER;
-		addForce( move_vec );
-	}
+
 	//こっちは重力反転コマンドが押されたとき
 	bool is_revers_gravity = ( ( device->getButton( ) & BUTTON_A ) > 0 ) && ( ( _before_device_button & BUTTON_A ) == 0 );//重力反転状態
 	if ( is_revers_gravity ) {
@@ -142,36 +149,48 @@ void Player::deviceController( ) {
 }
 
 void Player::move( ) {
-	/*減速処理はこちら*/
+	//重力
+	if ( !onGround( ) ) {
+		_fly_time++;
+	} else {
+		_fly_time = 0;
+	}
+	Vector gravity_vec = _gravity_vec;
+	gravity_vec *= GRAVITY_FORCE * _fly_time;
+	addForce( gravity_vec );
+	
+	_speed += _force;//加速する
+	_force = Vector( 0, 0, 0 );//加速度をリセットする
 
+	/*減速処理はこちら*/
 	//摩擦
 	bool on_ground = onGround( );
 	if ( on_ground ) {
 		if ( _speed.getLength( ) < STATIC_FRICTION_RANGE ) {
-			addForce( _speed * -STATIC_FRICTION );//静摩擦
+			_speed.x -= _speed.normalize( ).x * GRAVITY_FORCE * STATIC_FRICTION;//静摩擦
 		} else {
-			addForce( _speed * -DYNAMIC_FRICTION );//動摩擦
+			_speed.x -= _speed.normalize( ).x * GRAVITY_FORCE * DYNAMIC_FRICTION;//動摩擦
 		}
-		_speed = Vector( _speed.x, 0, _speed.z );
+		if ( _speed.y < 0 ) {
+			_speed = Vector( _speed.x, 0, _speed.z );
+		}
 	}
-	{//重力
-		Vector gravity_vec = _gravity_vec;
-		gravity_vec *= GRAVITY_FORCE * _fly_time;
-		addForce( gravity_vec );
-	}
-	_speed += _force;//加速する
+
 	if ( _speed.x > MAX_SPEED ) {
 		_speed = Vector( MAX_SPEED, _speed.y, _speed.z );
 	}
 	
-	_force = Vector( 0, 0, 0 );//加速度をリセットする
 	//移動判定はこちら
 	bool can_move = canMove( );
-	while ( !can_move ) {
-		_speed *= 0.99;
-		can_move = canMove( );
+	if ( !can_move ) {
+		GamePtr game = Game::getTask( );
+		StageManagerPtr stage_mgr = game->getStageManager( );
+		Vector hit_pos = stage_mgr->raycastBlock( _pos, _speed + _speed.normalize( ) * PLAYER_RANGE );
+		_pos = hit_pos + _speed.normalize( ) * -1 * PLAYER_RANGE;
+		_speed = Vector( 0, 0, 0 );
+	} else {
+		_pos += _speed;
 	}
-	_pos += _speed;
 }
 
 void Player::addForce( const Vector& force ) {
@@ -181,15 +200,17 @@ void Player::addForce( const Vector& force ) {
 bool Player::onGround( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_mgr = game->getStageManager( );
-	//bool result = stage_mgr->isHitBlock( _pos + ( _gravity_vec * 2 ) );
-	return true;
+	Vector hit_pos = stage_mgr->raycastBlock( _pos, _gravity_vec.normalize( ) * PLAYER_RANGE * 1.5 );
+	bool result =  !( _pos == hit_pos );
+	return result;
 }
 
 bool Player::canMove( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_mgr = game->getStageManager( );
-//	bool result = !stage_mgr->isHitBlock( _pos + _speed );
-	return true;
+	Vector hit_pos = stage_mgr->raycastBlock( _pos, _speed + _speed.normalize( ) * PLAYER_RANGE );
+	bool result =  ( _pos == hit_pos );
+	return result;
 }
 
 Vector Player::getSpeed( ) const {
