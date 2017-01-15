@@ -33,6 +33,16 @@ enum MODEL_MV1{
 	MODEL_MV1_PLAYER_RUN,
 	MODEL_MV1_PLAYER_HOVER,
 	MODEL_MV1_PLAYER_TURBO,
+	MODEL_MV1_PLAYER_REVERSAL,
+	MODEL_MV1_PLAYER_READY,
+	MODEL_MV1_PLAYER_LAND,
+	MODEL_MV1_PLAYER_JUMP,
+	MODEL_MV1_PLAYER_HOVER_JUMP,
+	MODEL_MV1_PLAYER_HOVER_CRASH,
+	MODEL_MV1_PLAYER_GOAL,
+	MODEL_MV1_PLAYER_FALL,
+	MODEL_MV1_PLAYER_CRASH,
+
 	MODEL_MV1_BACK_GROUND,
 	MODEL_MV1_BACK_TOWER,
 
@@ -52,9 +62,19 @@ void Viewer::initialize( ) {
 	//ここでリソースの読み込み
 	//MV1モデルの読み込み
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_WAIT, "Model/Player/player_wait.mv1" );
-	drawer->loadMV1Model( MODEL_MV1_PLAYER_RUN, "Model/Player/player_walk.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_RUN, "Model/Player/player_run.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_HOVER, "Model/Player/player_hover.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_TURBO, "Model/Player/player_turbo.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_REVERSAL, "Model/Player/player_reversal.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_READY, "Model/Player/player_ready.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_LAND, "Model/Player/player_land.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_JUMP, "Model/Player/player_jump.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_HOVER_JUMP, "Model/Player/player_hover_jump.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_HOVER_CRASH, "Model/Player/player_hover_crash.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_GOAL, "Model/Player/player_goal.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_FALL, "Model/Player/player_fall.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_CRASH, "Model/Player/player_crash.mv1" );
+
 	drawer->loadMV1Model( MODEL_MV1_BACK_GROUND, "Model/Stage/back_ground.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_BACK_TOWER, "Model/Stage/back_tower.mv1" );
 
