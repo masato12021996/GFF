@@ -1,5 +1,6 @@
 #include "StageManager.h"
 #include "StageBlock.h"
+#include "Debri.h"
 #include "Timer.h"
 #include "Field.h"
 #include "Game.h"
@@ -7,11 +8,15 @@
 
 const double STAGE_BLOCK_WIDTH = 24;
 const double STAGE_BLOCK_HEIGHT = 2;
+
+const double DEBRI_WIDTH = 3;
+const double DEBRI_HEIGHT = 2;
+
 const int LIMIT_TIME = 30;
 
 
 StageManager::StageManager( ) {
-	_stage_block_max = 0;
+	_stage_obj_max = 0;
 	_timer = TimerPtr( new Timer( LIMIT_TIME ) );
 }
 
@@ -23,9 +28,20 @@ StageBlockPtr StageManager::getStageBlock( int idx ) {
 	return _stage_block[ idx ];
 }
 
+DebriPtr StageManager::getDebri( int idx ) {
+	return _stage_debri[ idx ];
+}
+
 void StageManager::addStageBlock( Vector pos, int idx ) {
 	StageBlockPtr stage_block = StageBlockPtr( new StageBlock( pos ) );
-	_stage_block[ idx ] = stage_block;
+	_stage_block[ _stage_obj_max ] = stage_block;
+	_stage_obj_max++;
+}
+
+void StageManager::addDebri( Vector pos, int idx ) {
+	DebriPtr stage_debri = DebriPtr( new Debri( pos ) );
+	_stage_debri[ _stage_obj_max ] = stage_debri;
+	_stage_obj_max++;
 }
 
 int StageManager::getTimeCount( ) {
@@ -63,19 +79,21 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	FieldPtr field = app->getField( );
 	double multiple = 0;
 	Field::FieldContents field_block;
-	while ( dir.getLength( ) >= multiple_normalize_ray.getLength( ) ) {
+	multiple_normalize_ray = Vector ( 0, 0, 0 );
+
+	while ( ray.getLength( ) >= multiple_normalize_ray.getLength( ) ) {
 
 		multiple_normalize_ray += origin_pos;
 
-		int x = ( int )( ( multiple_normalize_ray.x + ( STAGE_BLOCK_WIDTH / 2 ) ) / Field::FX_TO_MX );
-		int y = ( int )( ( multiple_normalize_ray.y + ( STAGE_BLOCK_HEIGHT / 2 ) ) / Field::FY_TO_MY );
+		int x = ( int )( ( multiple_normalize_ray.x + ( DEBRI_WIDTH / 2 ) ) / Field::FX_TO_MX );
+		int y = ( int )( ( multiple_normalize_ray.y ) / Field::FY_TO_MY );
 		if ( x < 0 ) {
 			x = 0;
 		}
 		if ( y < 0 ) {
 			y = 0;
 		}
-		field_block = field->getFieldBlock( x, y );
+		field_block = field->getFieldObj( x, y );
 		if( field_block.x >= 0 && field_block.y >= 0 ) {
 			break;
 		}
@@ -91,16 +109,30 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	Vector block_center;
 	block_center.x = field_block.x * Field::FX_TO_MX;
 	block_center.y = field_block.y;
-
-	//ブロックの左上
-	Vector plane_point_a = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-	//ブロックの右上
-	Vector plane_point_b = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-	//ブロックの左下
-	Vector plane_point_c = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-	//ブロックの右下
-	Vector plane_point_d = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-
+	Vector plane_point_a;
+	Vector plane_point_b;
+	Vector plane_point_c;
+	Vector plane_point_d;
+	if ( field_block.tag == Field::FIELD_OBJ_BLOCK ) {
+		//ブロックの左上
+		plane_point_a = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
+		//ブロックの右上
+		plane_point_b = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
+		//ブロックの左下
+		plane_point_c = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
+		//ブロックの右下
+		plane_point_d = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
+	}
+	if ( field_block.tag == Field::FIELD_OBJ_DEBRI ) {
+		plane_point_a = Vector( block_center.x - ( DEBRI_WIDTH / 2 ), block_center.y + ( DEBRI_HEIGHT / 2 ), 0 );
+		//ブロックの右上
+		plane_point_b = Vector( block_center.x + ( DEBRI_WIDTH / 2 ), block_center.y + ( DEBRI_HEIGHT / 2 ), 0 );
+		//ブロックの左下
+		plane_point_c = Vector( block_center.x - ( DEBRI_WIDTH / 2 ), block_center.y - ( DEBRI_HEIGHT / 2 ), 0 );
+		//ブロックの右下
+		plane_point_d = Vector( block_center.x + ( DEBRI_WIDTH / 2 ), block_center.y - ( DEBRI_HEIGHT / 2 ), 0 );
+	}
+	
 	Vector block_origin_pos[ 4 ] = { plane_point_a, plane_point_a, plane_point_d, plane_point_d };
 	Vector block_dir[ 4 ] = { plane_point_b, plane_point_c, plane_point_b, plane_point_c };
 	
@@ -130,10 +162,6 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	
 }
 
-void StageManager::setMaxBlockNum( int num ) {
-	_stage_block_max = num;
-}
-
 double StageManager::getStageBlockWidth( ) {
 	return STAGE_BLOCK_WIDTH;
 }
@@ -142,7 +170,7 @@ double StageManager::getStageBlockHeight( ) {
 	return STAGE_BLOCK_HEIGHT;
 }
 
-int StageManager::getMaxStageBlockNum( ) {
-	return _stage_block_max;
+int StageManager::getMaxStageObjNum( ) {
+	return _stage_obj_max;
 }
 

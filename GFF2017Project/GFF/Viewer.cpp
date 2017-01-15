@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "StageManager.h"
 #include "StageBlock.h"
+#include "Debri.h"
 #include "Field.h"
 #include "Animation.h"
 #include "Application.h"
@@ -19,7 +20,9 @@ const int TIME_COLON_NUM = 10;
 
 
 enum MODEL_MDL {
-	MODEL_MDL_BOX
+	MODEL_MDL_BOX,
+	MODEL_MDL_DEBRI,
+	MODEL_MDL_BACK_TOWER,
 };
 
 enum MODEL_MV1{
@@ -47,7 +50,11 @@ void Viewer::initialize( ) {
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_HOVER, "Model/Player/player_hover.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_TURBO, "Model/Player/player_turbo.mv1" );
 	//MDLファイルモデルの読み込み
-	drawer->loadMDLModel( MODEL_MDL_BOX, "Model/Stage/stage_box_dummy.mdl", "Model/Stage/stage_box_dummy_tex.jpg" );
+	drawer->loadMDLModel( MODEL_MDL_BOX, "Model/Stage/stage_box_dummy.mdl", "Model/Stage/box_tex.jpg" );
+	drawer->loadMDLModel( MODEL_MDL_DEBRI, "Model/Stage/debri.mdl", "Model/Stage/debri_tex.jpg" );
+	drawer->loadMDLModel( MODEL_MDL_BACK_TOWER, "Model/Stage/back_tower.mdl", "Model/Stage/back_obj02_01_tex.jpg" );
+
+
 	//UIグラフィック
 	drawer->loadGraph( RES_UI, "UI/UI_number_REDandWHITE.png" );
 }
@@ -157,19 +164,26 @@ void Viewer::drawStageMdl( ) {
 	
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_manager = game->getStageManager( );
-	int stage_max = stage_manager->getMaxStageBlockNum( );
-	int block_width = stage_manager->STAGE_MAX_WIDTH;
-	int block_height = ( int )stage_manager->getStageBlockHeight( );
-	for ( int i = 0; i < StageManager::STAGE_MAX_HEIGHT * StageManager::STAGE_MAX_WIDTH; i++ ) {
+	int stage_obj_max = stage_manager->getMaxStageObjNum( );
+	for ( int i = 0; i < stage_obj_max; i++ ) {
 		StageBlockPtr stageBlock = stage_manager->getStageBlock( i );
-		if ( !stageBlock ) {
-			continue;
+		if ( stageBlock ) {
+			Vector pos = stageBlock->getPos( );
+			pos.x *= Field::FX_TO_MX;
+			pos.y *= Field::FY_TO_MY;
+			pos.y -= 1;
+			Drawer::ModelMDL model_mdl = Drawer::ModelMDL( pos, MODEL_MDL_BOX );
+			drawer->setModelMDL( model_mdl );
 		}
-		Vector pos = stageBlock->getPos( );
-		pos.x *= Field::FX_TO_MX;
-		pos.y *= Field::FY_TO_MY;
-		pos.y -= 1;
-		Drawer::ModelMDL model_mdl = Drawer::ModelMDL( pos, MODEL_MDL_BOX );
-		drawer->setModelMDL( model_mdl );
+		DebriPtr debri = stage_manager->getDebri( i );
+		if ( debri ) {
+			Vector pos = debri->getPos( );
+			pos.x *= Field::FX_TO_MX;
+			pos.y *= Field::FY_TO_MY;
+			pos.y -= 2;
+			Drawer::ModelMDL model_mdl = Drawer::ModelMDL( pos, MODEL_MDL_DEBRI );
+			drawer->setModelMDL( model_mdl );
+		}
 	}
 }
+

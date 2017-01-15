@@ -50,8 +50,14 @@ void Game::initialize( ) {
 		pos.x = ( ( i ) % map_width );
 		pos.y =  map_height - ( ( i ) / map_width ) - 1;
 		pos.z = 0;
-		_field->setFieldBlock( ( int )pos.x , ( int )pos.y );
-		_stage_manager->addStageBlock( pos, ( map_width * map_height ) - ( i + 1 )  );
+		if ( csv.getCsvValue( i ) == 1 ) {
+			_field->setFieldBlock( ( int )pos.x , ( int )pos.y );
+			_stage_manager->addStageBlock( pos, ( map_width * map_height ) - ( i + 1 )  );
+		}
+		if ( csv.getCsvValue( i ) == 2 ) {
+			_field->setFieldDebris( ( int )pos.x , ( int )pos.y );
+			_stage_manager->addDebri( pos, ( map_width * map_height ) - ( i + 1 )  );
+		}
 	}
 }
 
