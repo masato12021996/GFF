@@ -1,12 +1,15 @@
 #include "StageManager.h"
 #include "StageBlock.h"
+#include "Debri.h"
+#include "Timer.h"
 
 
 const double STAGE_BLOCK_WIDTH = 24;
 const double STAGE_BLOCK_HEIGHT = 2;
 
 StageManager::StageManager( ) {
-	_stage_block_max = 0;
+	_stage_obj_max = 0;
+	_timer = TimerPtr ( new Timer( 30 ) );
 }
 
 
@@ -17,9 +20,22 @@ StageBlockPtr StageManager::getStageBlock( int idx ) {
 	return _stage_block[ idx ];
 }
 
+
+DebriPtr StageManager::getDebri( int idx ) {
+	return _stage_debri[ idx ];
+}
+
 void StageManager::addStageBlock( Vector pos, int idx ) {
 	StageBlockPtr stage_block = StageBlockPtr( new StageBlock( pos ) );
-	_stage_block[ idx ] = stage_block;
+	_stage_block[ _stage_obj_max ] = stage_block;
+	_stage_obj_max++;
+}
+
+
+void StageManager::addDebri( Vector pos, int idx ) {
+	DebriPtr debri = DebriPtr( new Debri( pos ) );
+	_stage_debri[ _stage_obj_max ] = debri;
+	_stage_obj_max++;
 }
 
 void StageManager::setStageWidth( int width ) {
@@ -106,10 +122,18 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector dir ) {
 	
 }
 
-void StageManager::setMaxBlockNum( int num ) {
-	_stage_block_max = num;
+int StageManager::getTimeCount( ) {
+	return _timer->getTimeCount( ); 
 }
-
+void StageManager::timerStart( ) {
+	_timer->timerStart( );
+}
+bool StageManager::isTimeLimit( ) {
+	return _timer->isTimeLimit( );
+}
+bool StageManager::isTimerStart( ) {
+	return _timer->isTimerStart( );
+}
 double StageManager::getStageBlockWidth( ) {
 	return STAGE_BLOCK_WIDTH;
 }
@@ -118,7 +142,6 @@ double StageManager::getStageBlockHeight( ) {
 	return STAGE_BLOCK_HEIGHT;
 }
 
-int StageManager::getMaxStageBlockNum( ) {
-	return _stage_block_max;
+int StageManager::getMaxStageObjNum( ) {
+	return _stage_obj_max;
 }
-

@@ -27,7 +27,7 @@ void CameraCtr::update( ) {
 	Vector speed = player->getSpeed( );
 	Vector camera_pos = _camera->getCameraPos( );
 	
-	_camera_z_buffer += ( _before_player_speed -  speed.getLength( ) ) * 70;
+	_camera_z_buffer += ( _before_player_speed -  speed.x ) * 70;
 	if ( _camera_z_buffer > 0 && speed.getLength( ) > 1 ) {
 		_camera_z_buffer = 0;
 	}
@@ -49,7 +49,7 @@ void CameraCtr::update( ) {
 
 	_camera->setCameraPos( camera_pos );
 	_camera_target_buffer += camera_move_z / CAMERA_CENTER_MULT;
-	_before_player_speed = speed.getLength( );
+	_before_player_speed = speed.x;
 
 
 	keepTargetLength( );
