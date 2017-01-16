@@ -20,7 +20,7 @@ const double GRAVITY_FORCE = ( 9.8 / 60 ) / 40;
 const double JUMP_POWER = 1;
 
 const double PLAYER_RANGE = 0.1;
-const double PLAYER_SCALE = 2;
+const double PLAYER_SCALE = 2.5;
 
 Player::Player( ) {
 	_pos = START_POS;
@@ -78,9 +78,10 @@ void Player::swicthStatus( ) {
 	}
 	if ( _is_jump ) {
 		_state = STATE_JUMP;
-		if ( _is_fall ) {
-			_state = STATE_FALL;
-		}
+		
+	}
+	if (_is_fall) {
+		_state = STATE_FALL;
 	}
 	if ( _is_land ) {
 		_state = STATE_LAND;
@@ -205,7 +206,7 @@ void Player::deviceController( ) {
 	else {
 		//空中歩行
 		Vector move_vec = Vector(dir_x, 0, 0);//移動ベクトルを取る
-		move_vec *= 0.0001;
+		move_vec *= 0.00001;
 		addForce(move_vec);
 		if ( !( ( device->getButton() & BUTTON_C ) > 0 ) && (_before_device_button & BUTTON_C) > 0 && _push_jump_buton < JUMP_POWER * 100 / 2 ) {
 			Vector move_vec = _gravity_vec * (JUMP_POWER / 2 - _push_jump_buton / 100);
@@ -245,8 +246,8 @@ void Player::move( ) {
 	
 	_speed += _force;//加速する
 
-	if ( _speed.y > 0 && _before_speed.y < 0 ||
-		 _speed.y < 0 && _before_speed.y > 0 ) {
+	if ( _speed.y > 0 && _gravity_vec.y > 0 ||
+		_speed.y < 0 && _gravity_vec.y < 0) {
 		_is_fall = true;
 	}
 	_force = Vector( 0, 0, 0 );//加速度をリセットする
