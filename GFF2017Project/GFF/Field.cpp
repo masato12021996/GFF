@@ -31,17 +31,18 @@ void Field::setFieldDebris( int x, int y ) {
 }
 
 void Field::setFieldBlock( int x, int y ) {
+	int idx = x + y * _field_width;
 	for ( int i = -4; i < DEBRISTOBLOCKRATIO - 5; i++ ) {
 		int fx = ( x + i );
 		if ( fx < 0 ) {
 			fx = 0;
 		}
-		int idx = fx + y * _field_width;
-		_field[ idx ].x = x;
-		_field[ idx ].y = y;
-		_field[ idx ].tag = Field::FIELD_OBJ_BLOCK;
-		_idx_sevar.push_back(idx);
+		int idx_f = fx + y * _field_width;
+		_field[ idx_f ].x = x;
+		_field[ idx_f ].y = y;
+		_field[ idx_f ].tag = Field::FIELD_OBJ_BLOCK;
 	}
+	_idx_sevar.push_back( idx );
 }
 
 void Field::setFieldWidth( int width ) {
