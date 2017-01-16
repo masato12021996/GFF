@@ -19,7 +19,8 @@ const double MAX_SPEED = 2.0;
 const double GRAVITY_FORCE = ( 9.8 / 60 ) / 40;
 const double JUMP_POWER = 1;
 
-const double PLAYER_RANGE = 0.5;
+const double PLAYER_RANGE = 0.1;
+const double PLAYER_SCALE = 2;
 
 Player::Player( ) {
 	_pos = START_POS;
@@ -225,6 +226,7 @@ void Player::deviceController( ) {
 	bool is_revers_gravity = ( ( device->getButton( ) & BUTTON_A ) > 0 ) && ( ( _before_device_button & BUTTON_A ) == 0 );//d—Í”½“]ó‘Ô
 	if ( is_revers_gravity ) {
 		_gravity_vec *= -1;
+		_pos.y += _gravity_vec.y * 3;
 		_is_reversal = true;
 	}
 	_before_device_button = device->getButton( );
@@ -312,8 +314,16 @@ bool Player::canMove( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_mgr = game->getStageManager( );
 	Vector hit_pos = stage_mgr->raycastBlock( _pos, _speed + _speed.normalize( ) * PLAYER_RANGE );
-	bool result =  ( _pos == hit_pos );
-	return result;
+	bool result_foot =  ( _pos == hit_pos );
+	Vector player_body_pos;
+	if ( _gravity_vec.y > 0 ) {
+		player_body_pos = Vector(_pos.x, _pos.y - PLAYER_SCALE, _pos.z);
+	} else {
+		player_body_pos = Vector(_pos.x, _pos.y + PLAYER_SCALE, _pos.z);
+	} 
+	hit_pos = stage_mgr->raycastBlock(player_body_pos, _speed + _speed.normalize() * PLAYER_RANGE);
+	bool result_body = (player_body_pos == hit_pos);
+	return result_foot & result_body;
 }
 
 Vector Player::getSpeed( ) const {
