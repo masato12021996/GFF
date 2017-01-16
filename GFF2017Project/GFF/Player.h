@@ -45,11 +45,14 @@ private:
 	Vector _force;	//‰Á‘¬“x
 	STATE _state;	//ó‘Ô
 	int _fly_time;	//‘Ø‹óŠÔ
-	Vector _gravity_vec;//d—ÍŒü‚«
+	Vector _gravity_vec;//d—ÍŒü‚«]
+	bool _is_turbo;
 	bool _is_jump;
 	bool _is_fall;
 	bool _is_land;
 	bool _is_reversal;
+	bool _can_turbo;
+	int _turbo_time;
 	int _before_device_button;
 	int _push_jump_buton;
 	AnimationPtr _animation;

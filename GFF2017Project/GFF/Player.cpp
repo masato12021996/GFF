@@ -10,6 +10,7 @@ const Vector START_DIR = Vector( 1.0, 0.0, 0.0 );
 const double STATIC_FRICTION = 4;//Ã–€C—Í
 const double DYNAMIC_FRICTION = 2;//“®–€C—Í
 const double STATIC_FRICTION_RANGE = 0.01;//Ã–€C—Í‚Ì‹«–Ú
+const double TURBO_COOL_TIME = 1.0;
 
 const double MIN_RUN_SPEED = 0.1;
 const double MIN_HOVER_SPEED = 0.8;
@@ -33,6 +34,9 @@ Player::Player( ) {
 	_is_jump = false;
 	_is_fall = false;
 	_is_reversal = false;
+	_is_turbo = false;
+	_can_turbo = true;
+	_turbo_time = 0;
 	_before_device_button = 0;
 	_speed = Vector(0, 0, 0);
 	_before_speed = _speed;
@@ -89,6 +93,10 @@ void Player::swicthStatus( ) {
 	if ( _is_reversal ) {
 		_state = STATE_REVERSAL;
 	}
+
+	if ( _is_turbo == true ) {
+		_state = STATE_TURBO;
+	}
 }
 
 void Player::animationUpdate( ) {
@@ -117,8 +125,9 @@ void Player::animationUpdate( ) {
 	if ( _state == STATE_TURBO ) {
 		if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_TURBO ) {
 			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_TURBO ) );
-		} else if ( _animation->isEndAnimation( ) ) {
+		} else if ( _animation->getAnimTime( ) > ( _animation->getEndAnimTime( ) - 12 ) ) {
 			_animation->setAnimationTime( 0 );
+			_is_turbo = false;
 		}
 	}
 	if ( _state == STATE_JUMP ) {
@@ -215,8 +224,14 @@ void Player::deviceController( ) {
 	}
 
 	//ƒ^[ƒ{
+	if ( _turbo_time > TURBO_COOL_TIME * 60 ) {
+		_can_turbo = true;
+	}
 	bool on_turbo = ( device->getButton( ) & BUTTON_D ) > 0;//turboó‘Ô
-	if ( on_turbo ) {
+	if ( on_turbo && (_can_turbo || _is_land ) ) {
+		_is_turbo = true;
+		_can_turbo = false;
+		_turbo_time = 0;
 		Vector move_vec = Vector( 1, 0, 0 );//ˆÚ“®ƒxƒNƒgƒ‹‚ğæ‚é
 		/*‚±‚±‚Å‰Á‘¬“x‚Ì’²®*/
 		move_vec *= 2;
@@ -231,6 +246,7 @@ void Player::deviceController( ) {
 		_is_reversal = true;
 	}
 	_before_device_button = device->getButton( );
+	_turbo_time++;
 }
 
 void Player::move( ) {
@@ -246,6 +262,9 @@ void Player::move( ) {
 	
 	_speed += _force;//‰Á‘¬‚·‚é
 
+	if ( _is_turbo ) {
+		_speed.y = 0;
+	}
 	if ( _speed.y > 0 && _gravity_vec.y > 0 ||
 		_speed.y < 0 && _gravity_vec.y < 0) {
 		_is_fall = true;

@@ -128,9 +128,9 @@ void Viewer::drawPlayer() {
 	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, motion, anim_tim );
 	drawer->setModelMV1( model_mv1 );
 
-	StageManagerPtr stage_manager = game->getStageManager( );
+	/*StageManagerPtr stage_manager = game->getStageManager( );
 	Vector ans = stage_manager->raycastBlock( pos, Vector( pos.x, pos.y - 3 ) );
-	drawer->drawString( 0, 0, "x:%lf, y:%lf", ans.x, ans.y );
+	drawer->drawString( 0, 0, "x:%lf, y:%lf", ans.x, ans.y );*/
 }
 
 void Viewer::drawLimitTime( ) {
@@ -244,10 +244,7 @@ void Viewer::drawBackTower( ) {
 
 	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, MODEL_MV1_BACK_TOWER, 0 );
 	drawer->setModelMV1( model_mv1 );
-
-	
 }
-
 
 
 void Viewer::drawBackGround( ) {
@@ -257,10 +254,10 @@ void Viewer::drawBackGround( ) {
 	CameraPtr camera = camera_ctr->getCamera( );
 	Vector camera_pos = camera->getTargetPos( );
 	camera_pos.z = 0;
-	Vector pos = Vector( 7, 7, 120 );
+	Vector pos = Vector( 0, 7, 120 );
 	pos += camera_pos;
 	Matrix mat_rot = Matrix::makeTransformRotation( Vector( 0, 0, 0 ), 0 );
-	Matrix mat_scale = Matrix::makeTransformScaling( Vector( MV1_SCALE * 1, MV1_SCALE * 1, MV1_SCALE * 1 ) );
+	Matrix mat_scale = Matrix::makeTransformScaling( Vector( MV1_SCALE * 1.2, MV1_SCALE * 1.2, MV1_SCALE * 1.2 ) );
 	Matrix mat_trans = Matrix::makeTransformTranslation( pos );
 	
 	Matrix mat = mat_rot * mat_scale * mat_trans;
@@ -268,3 +265,4 @@ void Viewer::drawBackGround( ) {
 	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, MODEL_MV1_BACK_GROUND, 0 );
 	drawer->setModelMV1( model_mv1 );
 }
+
