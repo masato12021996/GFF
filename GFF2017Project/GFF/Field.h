@@ -1,6 +1,7 @@
 #pragma once
 #include "smart_ptr.h"
 #include <array>
+#include <vector>
 
 PTR( Field );
 
@@ -25,6 +26,10 @@ public:
 public:
 	void setFieldDebris( int x, int y );
 	void setFieldBlock( int x, int y );
+	FieldContents getFieldObj( int idx );
+
+	int getMaxIdx( );
+	int getIdx( int i );
 	FieldContents getFieldObj( int x, int y );
 	int getFieldMaxWidth( );
 	int getFieldMaxHeight( );
@@ -34,6 +39,7 @@ private:
 	static const int MAX_FIELD_Y = 5000;
 private:
 	std::array< FieldContents, MAX_FIELD_X * MAX_FIELD_Y > _field;
+	std::vector< int > _idx_sevar;
 	int _field_width;
 };
 

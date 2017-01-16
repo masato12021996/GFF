@@ -16,7 +16,7 @@ const double MIN_HOVER_SPEED = 0.8;
 const double MIN_TURBO_SPEED = 1.6;
 const double MAX_SPEED = 2.0;
 
-const double GRAVITY_FORCE = ( 9.8 / 60 ) / 50;
+const double GRAVITY_FORCE = ( 9.8 / 60 ) / 40;
 const double JUMP_POWER = 1;
 
 const double PLAYER_RANGE = 0.5;
@@ -29,7 +29,13 @@ Player::Player( ) {
 	_state = STATE_WAIT;
 	_animation = AnimationPtr( new Animation( ) );
 	_fly_time = 0;
+	_is_jump = false;
+	_is_fall = false;
+	_is_reversal = false;
 	_before_device_button = 0;
+	_speed = Vector(0, 0, 0);
+	_before_speed = _speed;
+	_push_jump_buton = 0;
 }
 
 Player::~Player( ) {
@@ -60,18 +66,31 @@ AnimationPtr Player::getAnimation( ) const {
 
 void Player::swicthStatus( ) {
 	_state = STATE_WAIT;
-	if ( _speed.getLength( ) >= MIN_RUN_SPEED ) {
+	if ( _speed.x >= MIN_RUN_SPEED ) {
 		_state = STATE_RUN;
 	}
-	if ( _speed.getLength( ) >= MIN_HOVER_SPEED ) {
+	if ( _speed.x >= MIN_HOVER_SPEED ) {
 		_state = STATE_HOVER;
 	}
-	if ( _speed.getLength( ) >= MIN_TURBO_SPEED ) {
+	if ( _speed.x >= MIN_TURBO_SPEED ) {
 		_state = STATE_TURBO;
+	}
+	if ( _is_jump ) {
+		_state = STATE_JUMP;
+		if ( _is_fall ) {
+			_state = STATE_FALL;
+		}
+	}
+	if ( _is_land ) {
+		_state = STATE_LAND;
+	}
+	if ( _is_reversal ) {
+		_state = STATE_REVERSAL;
 	}
 }
 
 void Player::animationUpdate( ) {
+
 	if ( _state == STATE_WAIT ) {
 		if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_WAIT ) {
 			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_WAIT ) );
@@ -100,6 +119,54 @@ void Player::animationUpdate( ) {
 			_animation->setAnimationTime( 0 );
 		}
 	}
+	if ( _state == STATE_JUMP ) {
+		if ( _speed.x >= MIN_HOVER_SPEED ) {
+			if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_HOVER_JUMP ) {
+				_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_HOVER_JUMP ) );
+				
+			} else if ( _animation->isEndAnimation( ) ) {
+				double time = _animation->getEndAnimTime();
+				_animation->setAnimationTime(time);
+			}
+		} else {
+			if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_JUMP ) {
+				_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_JUMP ) );
+				
+			} else if ( _animation->isEndAnimation( ) ) {
+				double time = _animation->getEndAnimTime();
+				_animation->setAnimationTime(time);
+			}
+		}
+	}
+	if (_state == STATE_FALL) {
+		if (_animation->getMotion() != Animation::MOTION_PLAYER_FALL) {
+			_animation = AnimationPtr(new Animation(Animation::MOTION_PLAYER_FALL));
+		}
+		else if (_animation->isEndAnimation()) {
+			double time = _animation->getEndAnimTime();
+			_animation->setAnimationTime(time);
+		}
+	}
+	if ( _state == STATE_LAND ) {
+		if (_animation->getMotion() != Animation::MOTION_PLAYER_LAND) {
+			_animation = AnimationPtr(new Animation(Animation::MOTION_PLAYER_LAND));
+		}
+		else if (_animation->isEndAnimation()) {
+			double time = _animation->getEndAnimTime();
+			_animation->setAnimationTime(time);
+			_is_land = false;
+		}
+	}
+	if (_state == STATE_REVERSAL) {
+		if (_animation->getMotion() != Animation::MOTION_PLAYER_REVERSAL) {
+			_animation = AnimationPtr(new Animation(Animation::MOTION_PLAYER_REVERSAL));
+		}
+		else if (_animation->isEndAnimation()) {
+			double time = _animation->getEndAnimTime();
+			_animation->setAnimationTime(time);
+			_is_reversal = false;
+		}
+	}
 	_animation->update( );
 }
 
@@ -114,21 +181,35 @@ void Player::deviceController( ) {
 		//歩行
 		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
 		move_vec *= 0.001;
-		addForce( move_vec );
+		if (dir_x > 0) {
+			addForce(move_vec);
+		}else if (_speed.x > 0) {
+			addForce(move_vec);
+		}
 
 		//ジャンプ
 		bool on_jump = ( device->getButton( ) & BUTTON_C ) > 0;//ジャンプ状態
 		if ( on_jump ) {
+			_is_jump = true;
 			Vector move_vec = _gravity_vec * -1;//移動ベクトルを取る
 			/*ここで加速度の調整*/
 			move_vec *= JUMP_POWER;
 			addForce( move_vec );
+			_push_jump_buton = 0;
 		}
-	} else {
+		else {
+			_is_jump = false;
+		}
+	}
+	else {
 		//空中歩行
-		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
+		Vector move_vec = Vector(dir_x, 0, 0);//移動ベクトルを取る
 		move_vec *= 0.0001;
-		addForce( move_vec );		
+		addForce(move_vec);
+		if ( !( ( device->getButton() & BUTTON_C ) > 0 ) && (_before_device_button & BUTTON_C) > 0 && _push_jump_buton < JUMP_POWER * 100 / 2 ) {
+			Vector move_vec = _gravity_vec * (JUMP_POWER / 2 - _push_jump_buton / 100);
+			addForce(move_vec);
+		}
 	}
 
 	//ターボ
@@ -144,6 +225,7 @@ void Player::deviceController( ) {
 	bool is_revers_gravity = ( ( device->getButton( ) & BUTTON_A ) > 0 ) && ( ( _before_device_button & BUTTON_A ) == 0 );//重力反転状態
 	if ( is_revers_gravity ) {
 		_gravity_vec *= -1;
+		_is_reversal = true;
 	}
 	_before_device_button = device->getButton( );
 }
@@ -160,20 +242,37 @@ void Player::move( ) {
 	addForce( gravity_vec );
 	
 	_speed += _force;//加速する
+
+	if ( _speed.y > 0 && _before_speed.y < 0 ||
+		 _speed.y < 0 && _before_speed.y > 0 ) {
+		_is_fall = true;
+	}
 	_force = Vector( 0, 0, 0 );//加速度をリセットする
 
 	/*減速処理はこちら*/
 	//摩擦
 	bool on_ground = onGround( );
 	if ( on_ground ) {
+		if ( _is_fall ) {
+			_is_land = true;
+		}
+		_is_fall = false;
 		if ( _speed.getLength( ) < STATIC_FRICTION_RANGE ) {
 			_speed.x -= _speed.normalize( ).x * GRAVITY_FORCE * STATIC_FRICTION;//静摩擦
 		} else {
 			_speed.x -= _speed.normalize( ).x * GRAVITY_FORCE * DYNAMIC_FRICTION;//動摩擦
 		}
-		if ( _speed.y < 0 ) {
-			_speed = Vector( _speed.x, 0, _speed.z );
+		if ( _gravity_vec.y < 0 ) {
+			if (_speed.y < 0) {
+				_speed = Vector(_speed.x, 0, _speed.z);
+			}
 		}
+		else {
+			if (_speed.y > 0) {
+				_speed = Vector(_speed.x, 0, _speed.z);
+			}
+		}
+		
 	}
 
 	if ( _speed.x > MAX_SPEED ) {
@@ -194,6 +293,7 @@ void Player::move( ) {
 	} else {
 		_pos += _speed;
 	}
+	_before_speed = _speed;
 }
 
 void Player::addForce( const Vector& force ) {
@@ -218,4 +318,8 @@ bool Player::canMove( ) {
 
 Vector Player::getSpeed( ) const {
 	return _speed;
+}
+
+bool Player::isReversal( ) const {
+	return _gravity_vec.y > 0;
 }

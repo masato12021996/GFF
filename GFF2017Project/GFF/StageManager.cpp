@@ -64,7 +64,7 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector next_pos ) {
 	if ( ray.getLength( ) == 0 ) {
 		return origin_pos;
 	}
-	Vector multiple_normalize_ray = ray.normalize( );
+	/*Vector multiple_normalize_ray = ray.normalize( );
 	FieldPtr field = app->getField( );
 	double multiple = 0;
 	Field::FieldContents field_block;
@@ -107,62 +107,70 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector next_pos ) {
 
 	if ( field_block.x < 0 || field_block.y < 0 ) {
 		return origin_pos;
-	}
-	
-	Vector block_center;
-	block_center.x = field_block.x * Field::FX_TO_MX;
-	block_center.y = field_block.y;
-	Vector plane_point_a;
-	Vector plane_point_b;
-	Vector plane_point_c;
-	Vector plane_point_d;
-	if ( field_block.tag == Field::FIELD_OBJ_BLOCK ) {
-		//ブロックの左上
-		plane_point_a = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-		//ブロックの右上
-		plane_point_b = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y + ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-		//ブロックの左下
-		plane_point_c = Vector( block_center.x - ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-		//ブロックの右下
-		plane_point_d = Vector( block_center.x + ( STAGE_BLOCK_WIDTH / 2 ), block_center.y - ( STAGE_BLOCK_HEIGHT / 2 ), 0 );
-	}
-	if ( field_block.tag == Field::FIELD_OBJ_DEBRI ) {
-		plane_point_a = Vector( block_center.x - ( DEBRI_WIDTH / 2 ), block_center.y + ( DEBRI_HEIGHT / 2 ), 0 );
-		//ブロックの右上
-		plane_point_b = Vector( block_center.x + ( DEBRI_WIDTH / 2 ), block_center.y + ( DEBRI_HEIGHT / 2 ), 0 );
-		//ブロックの左下
-		plane_point_c = Vector( block_center.x - ( DEBRI_WIDTH / 2 ), block_center.y - ( DEBRI_HEIGHT / 2 ), 0 );
-		//ブロックの右下
-		plane_point_d = Vector( block_center.x + ( DEBRI_WIDTH / 2 ), block_center.y - ( DEBRI_HEIGHT / 2 ), 0 );
-	}
-	
-	Vector block_origin_pos[ 4 ] = { plane_point_a, plane_point_a, plane_point_d, plane_point_d };
-	Vector block_dir[ 4 ] = { plane_point_b, plane_point_c, plane_point_b, plane_point_c };
-	
-	Vector a1 = origin_pos;
-	Vector a2 = dir;
+	}*/
+	FieldPtr field = app->getField( );
+	int max_idx = field->getMaxIdx( );
 	Vector final_out = dir;
-	bool is_not_closs = true;
-	for ( int i = 0; i < 4; i++ ) {
+	bool is_not_closs = true;;
+	for ( int i = 0; i < max_idx; i++ ) {
+		int idx = field->getIdx( i );
+		Field::FieldContents field_block = field->getFieldObj(idx);
+		Vector block_center;
+		block_center.x = field_block.x * Field::FX_TO_MX;
+		block_center.y = field_block.y * Field::FY_TO_MY;
+		Vector plane_point_a;
+		Vector plane_point_b;
+		Vector plane_point_c;
+		Vector plane_point_d;
+		if (field_block.tag == Field::FIELD_OBJ_BLOCK) {
+			//ブロックの左上
+			plane_point_a = Vector(block_center.x - (STAGE_BLOCK_WIDTH / 2), block_center.y + (STAGE_BLOCK_HEIGHT / 2), 0);
+			//ブロックの右上
+			plane_point_b = Vector(block_center.x + (STAGE_BLOCK_WIDTH / 2), block_center.y + (STAGE_BLOCK_HEIGHT / 2), 0);
+			//ブロックの左下
+			plane_point_c = Vector(block_center.x - (STAGE_BLOCK_WIDTH / 2), block_center.y - (STAGE_BLOCK_HEIGHT / 2), 0);
+			//ブロックの右下
+			plane_point_d = Vector(block_center.x + (STAGE_BLOCK_WIDTH / 2), block_center.y - (STAGE_BLOCK_HEIGHT / 2), 0);
+		}
+		if (field_block.tag == Field::FIELD_OBJ_DEBRI) {
+			plane_point_a = Vector(block_center.x - (DEBRI_WIDTH / 2), block_center.y + (DEBRI_HEIGHT / 2), 0);
+			//ブロックの右上
+			plane_point_b = Vector(block_center.x + (DEBRI_WIDTH / 2), block_center.y + (DEBRI_HEIGHT / 2), 0);
+			//ブロックの左下
+			plane_point_c = Vector(block_center.x - (DEBRI_WIDTH / 2), block_center.y - (DEBRI_HEIGHT / 2), 0);
+			//ブロックの右下
+			plane_point_d = Vector(block_center.x + (DEBRI_WIDTH / 2), block_center.y - (DEBRI_HEIGHT / 2), 0);
+		}
+
+		Vector block_origin_pos[4] = { plane_point_a, plane_point_a, plane_point_d, plane_point_d };
+		Vector block_dir[4] = { plane_point_b, plane_point_c, plane_point_b, plane_point_c };
+
+		Vector a1 = origin_pos;
+		Vector a2 = dir;
 		
-		Vector b1 = block_origin_pos[ i ];
-		Vector b2 = block_dir[ i ];
-		if( ( cross(a2-a1, b1-a1) * cross(a2-a1, b2-a1) > 0.0001 ) ||
-			( cross(b2-b1, a1-b1) * cross(b2-b1, a2-b1) > 0.0001 ) ) {
-			continue;
+	
+		for (int i = 0; i < 4; i++) {
+
+			Vector b1 = block_origin_pos[i];
+			Vector b2 = block_dir[i];
+			if ((cross(a2 - a1, b1 - a1) * cross(a2 - a1, b2 - a1) > 0.000001) ||
+				(cross(b2 - b1, a1 - b1) * cross(b2 - b1, a2 - b1) > 0.000001)) {
+				continue;
+			}
+			is_not_closs = false;
+			Vector a = a2 - a1;
+			Vector b = b2 - b1;
+			double d1 = cross(b, b1 - a1);
+			double d2 = cross(b, a);
+			Vector out = a1 + a * (1 / d2) * d1;
+			bool near_for_origin = (final_out - origin_pos).getLength() > (out - origin_pos).getLength();
+			if (near_for_origin) {
+				final_out = out;
+			}
 		}
-		is_not_closs = false;
-		Vector a = a2 - a1;
-		Vector b = b2 - b1;
-		double d1 = cross( b, b1 - a1 );
-		double d2 = cross( b, a );
-		Vector out = a1 + a * ( 1 / d2 ) * d1 ;
-		bool near_for_origin = ( final_out - origin_pos ).getLength( ) > ( out - origin_pos ).getLength( );
-		if ( near_for_origin ) {
-			final_out = out;
-		}
+		
 	}
-	if ( is_not_closs ) {
+	if (is_not_closs) {
 		final_out = origin_pos;
 	}
 	return final_out;

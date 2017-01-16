@@ -104,20 +104,25 @@ void Viewer::update( ) {
 	drawBackGround( );
 	drawLimitTime( );
 }
-void Viewer::drawPlayer( ) {
-	GamePtr game = Game::getTask( );
-	PlayerPtr player = game->getPlayer( );
-	DrawerPtr drawer = Drawer::getTask( );
-	AnimationPtr animation = player->getAnimation( );
+void Viewer::drawPlayer() {
+	GamePtr game = Game::getTask();
+	PlayerPtr player = game->getPlayer();
+	DrawerPtr drawer = Drawer::getTask();
+	AnimationPtr animation = player->getAnimation();
 
-	Vector pos = player->getPos( );
+	Vector pos = player->getPos();
+	Matrix mat_rot = Matrix::makeTransformRotation(Vector(0, 1, 0), PI / 2 * 3);
+	Matrix mat_reversal_rot = Matrix::makeTransformRotation(Vector(0, 0, 1), PI * 3 );
+	Matrix mat_scale = Matrix::makeTransformScaling(Vector(MV1_SCALE, MV1_SCALE, MV1_SCALE));
+	Matrix mat_trans = Matrix::makeTransformTranslation(pos);
+	bool _is_reversal = player->isReversal();
+	Matrix mat = mat_rot;
+	if (_is_reversal) {
+		mat = Matrix::makeTransformRotation(Vector(0, 1, 0), PI / 6 * 11 );
+		mat = mat * mat_reversal_rot;
+	}
+	mat = mat * mat_scale * mat_trans;
 	
-	Matrix mat_rot = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 2 * 3 );
-	Matrix mat_scale = Matrix::makeTransformScaling( Vector( MV1_SCALE, MV1_SCALE, MV1_SCALE ) );
-	Matrix mat_trans = Matrix::makeTransformTranslation( pos );
-	
-	Matrix mat = mat_rot * mat_scale * mat_trans;
-
 	int motion = animation->getMotion( );
 	double anim_tim = animation->getAnimTime( );
 	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, motion, anim_tim );

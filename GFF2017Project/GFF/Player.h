@@ -15,6 +15,10 @@ public:
 		STATE_RUN,
 		STATE_HOVER,
 		STATE_TURBO,
+		STATE_JUMP,
+		STATE_FALL,
+		STATE_LAND,
+		STATE_REVERSAL,
 		STATE_MAX
 	};
 public:
@@ -22,6 +26,7 @@ public:
 	Vector getPos( ) const;
 	Vector getDir( ) const;
 	STATE getState( ) const;
+	bool isReversal() const;
 	AnimationPtr getAnimation( ) const;
 	Vector getSpeed( ) const;
 private:
@@ -36,12 +41,17 @@ private:
 	Vector _pos;	//位置
 	Vector _dir;	//向き
 	Vector _speed;	//速度
+	Vector _before_speed;
 	Vector _force;	//加速度
 	STATE _state;	//状態
 	int _fly_time;	//滞空時間
 	Vector _gravity_vec;//重力向き
-
+	bool _is_jump;
+	bool _is_fall;
+	bool _is_land;
+	bool _is_reversal;
 	int _before_device_button;
+	int _push_jump_buton;
 	AnimationPtr _animation;
 };
 
