@@ -61,6 +61,14 @@ Vector Player::getDir( ) const {
 	return _dir;
 }
 
+int Player::getMaxTurboCoolTime( ) const {
+	return TURBO_COOL_TIME;
+}
+
+int Player::getTurboCoolTime( ) const {
+	return _turbo_time;
+}
+
 Player::STATE Player::getState( ) const {
 	return _state;
 }
@@ -68,6 +76,8 @@ Player::STATE Player::getState( ) const {
 AnimationPtr Player::getAnimation( ) const {
 	return _animation;
 }
+
+
 
 void Player::swicthStatus( ) {
 	_state = STATE_WAIT;

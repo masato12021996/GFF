@@ -29,6 +29,8 @@ public:
 	bool isReversal() const;
 	AnimationPtr getAnimation( ) const;
 	Vector getSpeed( ) const;
+	int getTurboCoolTime( ) const;
+	int getMaxTurboCoolTime( ) const;
 private:
 	void deviceController( );
 	void move( );
@@ -45,7 +47,7 @@ private:
 	Vector _force;	//‰Á‘¬“x
 	STATE _state;	//ó‘Ô
 	int _fly_time;	//‘Ø‹óŠÔ
-	Vector _gravity_vec;//d—ÍŒü‚«]
+	Vector _gravity_vec;//d—ÍŒü‚«
 	bool _is_turbo;
 	bool _is_jump;
 	bool _is_fall;

@@ -21,6 +21,7 @@ private:
 	void drawLimitTime( );
 	void drawBackTower( );
 	void drawBackGround( );
+	void drawTurboCoolTime( );
 private:
 	double _back_tower_angle;
 };

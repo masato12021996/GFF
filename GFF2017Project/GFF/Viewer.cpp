@@ -19,6 +19,11 @@ const int TIME_HEIGHT = 128;
 const int TIME_NUM_WIDTH = 64;
 const int TIME_COLON_WIDTH = 32;
 const int TIME_COLON_NUM = 10;
+
+const int GAUGE_WIDTH = 320;
+const int GAUGE_HEIGHT = 32;
+
+const int UI_OFFSET = 10;
 //小さいほどに回転が速くなる
 const int TOWER_ROTATE_SPEED = 20;
 
@@ -49,7 +54,10 @@ enum MODEL_MV1{
 };
 
 enum RES {
-	RES_UI
+	RES_UI_NUM,
+	RES_UI_GAUGE_FRAME,
+	RES_UI_GAUGE_ENERGY,
+	RES_UI_GAUGE_BACKGROUND
 };
 
 ViewerPtr Viewer::getTask( ) {
@@ -84,7 +92,10 @@ void Viewer::initialize( ) {
 
 
 	//UIグラフィック
-	drawer->loadGraph( RES_UI, "UI/UI_number_REDandWHITE.png" );
+	drawer->loadGraph( RES_UI_NUM, "UI/UI_number_REDandWHITE.png" );
+	drawer->loadGraph( RES_UI_GAUGE_FRAME, "UI/gauge_frame.png" );
+	drawer->loadGraph( RES_UI_GAUGE_ENERGY, "UI/gauge_energy.png" );
+	drawer->loadGraph( RES_UI_GAUGE_BACKGROUND, "UI/gauge_background.png" );
 	_back_tower_angle = 0;
 }
 
@@ -103,6 +114,7 @@ void Viewer::update( ) {
 	drawBackTower( );
 	drawBackGround( );
 	drawLimitTime( );
+	drawTurboCoolTime( );
 }
 void Viewer::drawPlayer() {
 	GamePtr game = Game::getTask();
@@ -149,48 +161,50 @@ void Viewer::drawLimitTime( ) {
 	if ( stage_manager->isTimeLimit( ) ) {
 		ty = TIME_HEIGHT;
 	}
+	ApplicationPtr app = Application::getInstance( );
+	int time_sx = app->getWindowWidth( ) - TIME_NUM_WIDTH * 7;
 	//秒数の最初の桁
 	if ( log10( second ) < 1 ) {
-		int x = TIME_X;
+		int x = time_sx;
 		int tx = 0;
-		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI ) );
+		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI_NUM ) );
 	} else {
-		int x = TIME_X;
+		int x = time_sx;
 		int num = second / 10;
 		int tx = num * TIME_NUM_WIDTH;
-		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI ) );
+		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI_NUM ) );
 	}
 	//秒数の2つ目の桁
 	{
-		int x = TIME_X + TIME_NUM_WIDTH;
+		int x = time_sx + TIME_NUM_WIDTH;
 		int num = second % 10;
 		int tx = num * TIME_NUM_WIDTH;
-		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI ) );
+		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI_NUM ) );
 	}
 	//コロン
 	{
-		int x = TIME_X + TIME_NUM_WIDTH * 2;
+		int x = time_sx + TIME_NUM_WIDTH * 2;
 		int num = TIME_COLON_NUM;
 		int tx = num * TIME_NUM_WIDTH;
-		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_COLON_WIDTH, TIME_HEIGHT ), RES_UI ) );
+		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_COLON_WIDTH, TIME_HEIGHT ), RES_UI_NUM ) );
 	}
 	//ミリ秒数の2つ目の桁
 	if ( log10( milli ) < 1 ) {
-		int x = TIME_X + TIME_NUM_WIDTH * 3 + TIME_COLON_WIDTH;
+		int x = time_sx + TIME_NUM_WIDTH * 3 + TIME_COLON_WIDTH;
 		int tx = 0;
-		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI ) );
+		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI_NUM ) );
 	} else {
-		int x = TIME_X + TIME_NUM_WIDTH * 3 + TIME_COLON_WIDTH;
+		int x = time_sx + TIME_NUM_WIDTH * 3 + TIME_COLON_WIDTH;
 		int num = milli % 10;
 		int tx = num * TIME_NUM_WIDTH;
-		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI ) );
+		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI_NUM ) );
 	}
 	//ミリ秒数の最初の桁
 	{
-		int x = TIME_X + TIME_NUM_WIDTH * 2 + TIME_COLON_WIDTH;
+		int x = time_sx + TIME_NUM_WIDTH * 2 + TIME_COLON_WIDTH;
 		int num = milli / 10;
 		int tx = num * TIME_NUM_WIDTH;
-		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, num * TIME_NUM_WIDTH, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI ) );
+		drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, num * TIME_NUM_WIDTH, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI_NUM ) );
 	}
 	
 }
@@ -266,3 +280,32 @@ void Viewer::drawBackGround( ) {
 	drawer->setModelMV1( model_mv1 );
 }
 
+void Viewer::drawTurboCoolTime( ) {
+	DrawerPtr drawer = Drawer::getTask( );
+	ApplicationPtr app = Application::getInstance( );
+
+	int sx = UI_OFFSET * 2;
+	int sy = app->getWindowHeight( ) - UI_OFFSET * 5;
+	
+	//ゲージのバックグラウンド
+	{
+		Drawer::Sprite sprite = Drawer::Sprite( Drawer::Transform( sx, sy, 0, 0, GAUGE_WIDTH, GAUGE_HEIGHT ), RES_UI_GAUGE_BACKGROUND );
+		drawer->setSprite( sprite );
+	}
+	//ゲージの中身
+	{
+		GamePtr game = Game::getTask( );
+		PlayerPtr player = game->getPlayer( );
+
+		double max_cool_time = player->getMaxTurboCoolTime( ) * 60;
+		double cool_time = player->getTurboCoolTime( );
+		double tw = ( double )GAUGE_WIDTH * ( cool_time / max_cool_time );
+		Drawer::Sprite sprite = Drawer::Sprite( Drawer::Transform( sx, sy, 0, 0, ( int )tw, GAUGE_HEIGHT ), RES_UI_GAUGE_ENERGY );
+		drawer->setSprite( sprite );
+	}
+	//ゲージのフレーム
+	{
+		Drawer::Sprite sprite = Drawer::Sprite( Drawer::Transform( sx, sy, 0, 0, GAUGE_WIDTH, GAUGE_HEIGHT ), RES_UI_GAUGE_FRAME );
+		drawer->setSprite( sprite );
+	}
+}
