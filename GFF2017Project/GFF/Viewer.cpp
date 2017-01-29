@@ -34,6 +34,7 @@ enum MODEL_MDL {
 };
 
 enum MODEL_MV1{
+	MODEL_MV1_PLAYER,
 	MODEL_MV1_PLAYER_WAIT,
 	MODEL_MV1_PLAYER_RUN,
 	MODEL_MV1_PLAYER_HOVER,
@@ -69,6 +70,7 @@ void Viewer::initialize( ) {
 	DrawerPtr drawer = Drawer::getTask( );
 	//ここでリソースの読み込み
 	//MV1モデルの読み込み
+	drawer->loadMV1Model( MODEL_MV1_PLAYER, "Model/Player/player.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_WAIT, "Model/Player/player_wait.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_RUN, "Model/Player/player_run.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_HOVER, "Model/Player/player_hover.mv1" );
@@ -116,28 +118,28 @@ void Viewer::update( ) {
 	drawLimitTime( );
 	drawTurboCoolTime( );
 }
-void Viewer::drawPlayer() {
-	GamePtr game = Game::getTask();
-	PlayerPtr player = game->getPlayer();
-	DrawerPtr drawer = Drawer::getTask();
-	AnimationPtr animation = player->getAnimation();
+void Viewer::drawPlayer( ) {
+	GamePtr game = Game::getTask( );
+	PlayerPtr player = game->getPlayer( );
+	DrawerPtr drawer = Drawer::getTask( );
+	AnimationPtr animation = player->getAnimation( );
 
-	Vector pos = player->getPos();
-	Matrix mat_rot = Matrix::makeTransformRotation(Vector(0, 1, 0), PI / 2 * 3);
-	Matrix mat_reversal_rot = Matrix::makeTransformRotation(Vector(0, 0, 1), PI * 3 );
-	Matrix mat_scale = Matrix::makeTransformScaling(Vector(MV1_SCALE, MV1_SCALE, MV1_SCALE));
-	Matrix mat_trans = Matrix::makeTransformTranslation(pos);
-	bool _is_reversal = player->isReversal();
+	Vector pos = player->getPos( );
+	Matrix mat_rot = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 2 * 3 );
+	Matrix mat_reversal_rot = Matrix::makeTransformRotation( Vector( 0, 0, 1 ), PI * 3 );
+	Matrix mat_scale = Matrix::makeTransformScaling( Vector( MV1_SCALE, MV1_SCALE, MV1_SCALE ) );
+	Matrix mat_trans = Matrix::makeTransformTranslation( pos );
+	bool _is_reversal = player->isReversal( );
 	Matrix mat = mat_rot;
-	if (_is_reversal) {
-		mat = Matrix::makeTransformRotation(Vector(0, 1, 0), PI / 6 * 11 );
+	if ( _is_reversal ) {
+		mat = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 6 * 11 );
 		mat = mat * mat_reversal_rot;
 	}
 	mat = mat * mat_scale * mat_trans;
 	
 	int motion = animation->getMotion( );
 	double anim_tim = animation->getAnimTime( );
-	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, motion, anim_tim );
+	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, MODEL_MV1_PLAYER, motion, anim_tim );
 	drawer->setModelMV1( model_mv1 );
 
 	/*StageManagerPtr stage_manager = game->getStageManager( );
