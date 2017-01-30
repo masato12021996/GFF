@@ -11,6 +11,7 @@ const Vector START_DIR = Vector( 1.0, 0.0, 0.0 );
 
 const double STATIC_FRICTION = 4;//静摩擦力
 const double DYNAMIC_FRICTION = 2;//動摩擦力
+const double GAME_END_FRICTION = 20;//ゲーム終了時摩擦
 const double STATIC_FRICTION_RANGE = 0.01;//静摩擦力の境目
 const double TURBO_COOL_TIME = 1.0;
 
@@ -43,6 +44,8 @@ Player::Player( ) {
 	_speed = Vector(0, 0, 0);
 	_before_speed = _speed;
 	_push_jump_buton = 0;
+	_game_clear = false;
+	_end_clear_animation = false;
 }
 
 Player::~Player( ) {
@@ -57,6 +60,14 @@ void Player::update( ) {
 
 Vector Player::getPos( ) const {
 	return _pos;
+}
+
+void Player::setEndMotion( ) {
+	_game_clear = true;
+}
+
+bool Player::isEndClearMotion( ) const {
+	return _end_clear_animation;
 }
 
 Vector Player::getDir( ) const {
@@ -108,6 +119,9 @@ void Player::swicthStatus( ) {
 
 	if ( _is_turbo == true ) {
 		_state = STATE_TURBO;
+	}
+	if ( _game_clear == true && onGround( ) ) {
+		_state = STATE_CLEAR;
 	}
 }
 
@@ -190,11 +204,23 @@ void Player::animationUpdate( ) {
 			_is_reversal = false;
 		}
 	}
+	if ( _state == STATE_CLEAR ) {
+		if (_animation->getMotion() != Animation::MOTION_PLAYER_GOAL) {
+			_animation = AnimationPtr(new Animation(Animation::MOTION_PLAYER_GOAL));
+		} else if ( _animation->isEndAnimation( ) ) {
+			double time = _animation->getEndAnimTime( );
+			_animation->setAnimationTime( time );
+			_end_clear_animation = true;
+		}
+	}
 	_animation->update( );
 }
 
 //デバイスの入力に対応した処理
 void Player::deviceController( ) {
+	if ( _game_clear ) {
+		return;
+	}
 	DevicePtr device = Device::getTask( );
 	//アナログスティックのXの方向を取得
 	double dir_x = device->getDirX( );
@@ -290,6 +316,13 @@ void Player::move( ) {
 		_is_fall = true;
 	}
 	_force = Vector( 0, 0, 0 );//加速度をリセットする
+	//ゲーム終了時の処理
+	if ( _game_clear ) {
+		_speed.x -= _speed.normalize( ).x * GRAVITY_FORCE * GAME_END_FRICTION;//静摩擦
+		if ( _speed.x <= 0 ) {
+			_speed.x = 0;
+		}
+	}
 
 	/*減速処理はこちら*/
 	//摩擦

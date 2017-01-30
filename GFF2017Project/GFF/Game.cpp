@@ -1,11 +1,12 @@
 #include "Game.h"
 #include "Player.h"
+#include "Title.h"
 #include "CameraCtr.h"
 #include "Application.h"
 #include "StageManager.h"
 #include "Field.h"
 #include "LoadCSV.h"
-
+#include "Device.h"
 
 GamePtr Game::getTask( ) {
 	ApplicationPtr application = Application::getInstance( );
@@ -13,6 +14,7 @@ GamePtr Game::getTask( ) {
 }
 
 Game::Game( ) {
+	_state = STATE_TITLE;
 }
 
 Game::~Game( ) {
@@ -36,6 +38,7 @@ FieldPtr Game::getField( ) const {
 
 void Game::initialize( ) {
 	_player = PlayerPtr( new Player( ) );
+	_title = TitlePtr( new Title( ) );
 	_stage_manager = StageManagerPtr( new StageManager( ) );
 	_camera_ctr = CameraCtrPtr( new CameraCtr( ) );
 	_field = FieldPtr( new Field( ) );
@@ -62,14 +65,44 @@ void Game::initialize( ) {
 			_field->setFieldDebris( ( int )pos.x , ( int )pos.y );
 			_stage_manager->addDebri( pos, ( map_width * map_height ) - ( i + 1 )  );
 		}
+		if ( csv.getCsvValue( i ) == 5 ) {
+			_clear_line_x = pos.x;
+		}
 	}
 }
 
 void Game::update( ) {
-	if ( !_stage_manager->isTimerStart( ) ) {
-		_stage_manager->timerStart( );
-	}
-	_player->update( );
+	DevicePtr device = Device::getTask( );
+
+	switch( _state ) {
+	case STATE_TITLE:
+		_title->update( );
+		if ( _title->isEndTitle( ) ) {
+			_state = STATE_PLAY;
+		}
+		break;
+	case STATE_PLAY:
+		if ( !_stage_manager->isTimerStart( ) ) {
+			_stage_manager->timerStart( );
+		}
+		_player->update( );
+		if ( _player->getPos( ).x > ( _clear_line_x * Field::FX_TO_MX ) ) {
+			_state = STATE_CLEAR;
+			_player->setEndMotion( );
+		}
+		break;
+	case STATE_CLEAR:
+		_player->update( );
+		if( _player->isEndClearMotion( ) && device->getButton( ) > 0 ) {
+			_state = STATE_TITLE;
+		}
+		break;
+	}	
+	
+		
 	_camera_ctr->update( );
-//	_stage_manager->isHitBlock( Vector( 0, 1, 0 ) );
+}
+
+Game::STATE Game::getGameState( ) const {
+	return _state;
 }

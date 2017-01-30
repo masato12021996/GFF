@@ -13,6 +13,8 @@ public:
 	CameraPtr getCamera( );
 private:
 	void keepTargetLength( );
+	void accessPlayer( );
+	void gameEndCamera( );
 private:
 	CameraPtr _camera;
 	double _before_player_speed;

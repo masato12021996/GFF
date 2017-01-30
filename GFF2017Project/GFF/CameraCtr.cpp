@@ -21,7 +21,25 @@ CameraCtr::~CameraCtr( ) {
 }
 
 void CameraCtr::update( ) {
+	GamePtr game = Game::getTask( ); 
+	switch( game->getGameState( ) ) {
+	case Game::STATE_TITLE:
+	case Game::STATE_PLAY:
+		accessPlayer( );
+		keepTargetLength( );
+		break;
+	case Game::STATE_CLEAR:
+		gameEndCamera( );
+		break;
+	}	
+	_camera->update( );
+}
 
+void CameraCtr::gameEndCamera( ) {
+
+}
+
+void CameraCtr::accessPlayer( ) { 
 	GamePtr game = Game::getTask( ); 
 	PlayerPtr player = game->getPlayer( );
 	Vector speed = player->getSpeed( );
@@ -51,9 +69,6 @@ void CameraCtr::update( ) {
 	_camera_target_buffer += camera_move_z / CAMERA_CENTER_MULT;
 	_before_player_speed = speed.x;
 
-
-	keepTargetLength( );
-	_camera->update( );
 }
 
 void CameraCtr::keepTargetLength( ) {
