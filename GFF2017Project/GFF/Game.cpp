@@ -7,7 +7,6 @@
 #include "Field.h"
 #include "LoadCSV.h"
 
-
 GamePtr Game::getTask( ) {
 	ApplicationPtr application = Application::getInstance( );
 	return std::dynamic_pointer_cast< Game >( application->getTask( getTag( ) ) );
