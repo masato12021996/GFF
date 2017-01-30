@@ -105,6 +105,12 @@ void Viewer::initialize( ) {
 	drawer->loadGraph( RES_UI_GAUGE_ENERGY, "UI/gauge_energy.png" );
 	drawer->loadGraph( RES_UI_GAUGE_BACKGROUND, "UI/gauge_background.png" );
 	drawer->loadGraph( RES_UI_GAUGE_TITLE_LOGO, "UI/GRASH_LOGO.png" );
+
+	//エフェクト読み込み
+	drawer->loadEffect( EFFECT_GRAVITY, "Effect/gravity.efk" );
+	drawer->loadEffect( EFFECT_TURBO, "Effect/drill.efk" );
+	drawer->loadEffect( EFFECT_WIND, "Effect/wind.efk" );
+
 	_back_tower_angle = 0;
 }
 
