@@ -22,6 +22,7 @@ public:
 	double getStageBlockHeight( );
 	int getTimeCount( );
 	void timerStart( );
+	void setClear( );
 	bool isTimeLimit( );
 	bool isTimerStart( );
 	void setStageWidth( int width );

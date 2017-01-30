@@ -100,6 +100,7 @@ void Game::update( ) {
 		if ( _player->getPos( ).x > ( _clear_line_x * Field::FX_TO_MX ) ) {
 			_state = STATE_CLEAR;
 			_player->setEndMotion( );
+			_stage_manager->setClear( );
 		}
 		break;
 	case STATE_CLEAR:

@@ -5,6 +5,9 @@
 
 const Vector TARGET_KEEP_LENGHT = Vector( 10, 0, 0 );
 const float CAMERA_TO_PLAYER_LENGHT_MAX = 50;
+const float CLEAR_CAMERA_Z_DIFF = 150;
+const float CLEAR_CAMERA_Z_FRAME_DIFF = 5;
+const float CLEAR_CAMERA_TARGET_FRAME_DIFF = 1;
 const float CAMERA_Z_ACCELE_MAX = 3;
 const int CAMERA_CENTER_MULT = 5;
 
@@ -13,6 +16,7 @@ CameraCtr::CameraCtr( ) {
 	_camera = CameraPtr( new Camera( ) );
 	_before_player_speed = 0;
 	_camera_z_buffer = 10;
+	_game_end_camera = false;
 }
 
 
@@ -22,21 +26,35 @@ CameraCtr::~CameraCtr( ) {
 
 void CameraCtr::update( ) {
 	GamePtr game = Game::getTask( ); 
-	switch( game->getGameState( ) ) {
-	case Game::STATE_TITLE:
-	case Game::STATE_PLAY:
-		accessPlayer( );
-		keepTargetLength( );
-		break;
-	case Game::STATE_CLEAR:
+	PlayerPtr player = game->getPlayer( );
+	if ( player->isPlayerStoped( ) ) {
 		gameEndCamera( );
-		break;
-	}	
+	} else {
+		accessPlayer( );
+	}
+	keepTargetLength( );
 	_camera->update( );
 }
 
-void CameraCtr::gameEndCamera( ) {
+bool CameraCtr::isEndAccess( ) {
+	return _game_end_camera;
+}
 
+void CameraCtr::gameEndCamera( ) {
+	Vector pos = _camera->getCameraPos( );
+	Vector original_pos = _camera->getCameraOriginalPos( );
+
+	if ( pos.z - original_pos.z > CLEAR_CAMERA_Z_DIFF ) {
+		_game_end_camera = true;
+		return;
+	}
+	GamePtr game = Game::getTask( ); 
+	pos.z += CLEAR_CAMERA_Z_FRAME_DIFF;
+	_camera->setCameraPos( pos );
+	_camera_target_buffer += CLEAR_CAMERA_TARGET_FRAME_DIFF;
+	if ( _camera_target_buffer >= TARGET_KEEP_LENGHT.x ) {
+		_camera_target_buffer = TARGET_KEEP_LENGHT.x;
+	}
 }
 
 void CameraCtr::accessPlayer( ) { 

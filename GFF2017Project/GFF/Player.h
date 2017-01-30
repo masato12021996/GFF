@@ -31,6 +31,7 @@ public:
 	STATE getState( ) const;
 	bool isReversal( ) const;
 	bool isEndClearMotion( ) const;
+	bool isPlayerStoped( ) const;
 	AnimationPtr getAnimation( ) const;
 	Vector getSpeed( ) const;
 	int getTurboCoolTime( ) const;
@@ -60,6 +61,7 @@ private:
 	bool _is_reversal;
 	bool _can_turbo;
 	bool _game_clear;
+	bool _player_stoped;
 	bool _end_clear_animation;
 	int _turbo_time;
 	int _before_device_button;

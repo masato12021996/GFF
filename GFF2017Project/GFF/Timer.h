@@ -10,11 +10,14 @@ public:
 public:
 	int getTimeCount( );
 	void timerStart( );
+	void clear( );
 	bool isTimeLimit( );
 	bool isTimerStart( );
 private:
 	int _time_limit;
 	int _start_time;
+	bool _is_clear;
 	bool _timer_start;
+	int _clear_time;
 };
 

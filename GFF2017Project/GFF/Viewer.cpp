@@ -141,13 +141,14 @@ void Viewer::update( ) {
 		drawTurboCoolTime( );
 		break;
 	case Game::STATE_PLAY:
+		drawTurboCoolTime( );
 	case Game::STATE_CLEAR:
 		drawStageMdl( );
 		drawPlayer( );
 		drawBackTower( );
 		drawBackGround( );
 		drawLimitTime( );
-		drawTurboCoolTime( );
+
 		break;
 	};
 }
@@ -194,7 +195,8 @@ void Viewer::drawLimitTime( ) {
 	}
 	int y = TIME_Y;
 	int ty = 0;
-	if ( stage_manager->isTimeLimit( ) ) {
+	CameraCtrPtr camera = game->getCameraCtr( );
+	if ( stage_manager->isTimeLimit( ) || camera->isEndAccess( ) ) {
 		ty = TIME_HEIGHT;
 	}
 	ApplicationPtr app = Application::getInstance( );
