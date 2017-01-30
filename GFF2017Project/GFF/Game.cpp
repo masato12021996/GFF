@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Player.h"
+#include "Title.h"
 #include "CameraCtr.h"
 #include "Application.h"
 #include "StageManager.h"
@@ -13,6 +14,7 @@ GamePtr Game::getTask( ) {
 }
 
 Game::Game( ) {
+	_state = STATE_TITLE;
 }
 
 Game::~Game( ) {
@@ -36,6 +38,7 @@ FieldPtr Game::getField( ) const {
 
 void Game::initialize( ) {
 	_player = PlayerPtr( new Player( ) );
+	_title = TitlePtr( new Title( ) );
 	_stage_manager = StageManagerPtr( new StageManager( ) );
 	_camera_ctr = CameraCtrPtr( new CameraCtr( ) );
 	_field = FieldPtr( new Field( ) );
@@ -66,10 +69,23 @@ void Game::initialize( ) {
 }
 
 void Game::update( ) {
-	if ( !_stage_manager->isTimerStart( ) ) {
-		_stage_manager->timerStart( );
-	}
-	_player->update( );
+	switch( _state ) {
+	case STATE_TITLE:
+		_title->update( );
+		if ( _title->isEndTitle( ) ) {
+			_state = STATE_PLAY;
+		}
+		break;
+	case STATE_PLAY:
+		if ( !_stage_manager->isTimerStart( ) ) {
+			_stage_manager->timerStart( );
+		}
+		_player->update( );
+		break;
+	}	
 	_camera_ctr->update( );
-//	_stage_manager->isHitBlock( Vector( 0, 1, 0 ) );
+}
+
+Game::STATE Game::getGameState( ) const {
+	return _state;
 }
