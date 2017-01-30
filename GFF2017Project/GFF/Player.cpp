@@ -43,6 +43,7 @@ Player::Player( ) {
 	_before_speed = _speed;
 	_push_jump_buton = 0;
 	_game_clear = false;
+	_player_stoped = false;
 	_end_clear_animation = false;
 }
 
@@ -62,6 +63,10 @@ Vector Player::getPos( ) const {
 
 void Player::setEndMotion( ) {
 	_game_clear = true;
+}
+
+bool Player::isPlayerStoped( ) const {
+	return _player_stoped;
 }
 
 bool Player::isEndClearMotion( ) const {
@@ -118,7 +123,7 @@ void Player::swicthStatus( ) {
 	if ( _is_turbo == true ) {
 		_state = STATE_TURBO;
 	}
-	if ( _game_clear == true && onGround( ) ) {
+	if ( _player_stoped == true && onGround( ) ) {
 		_state = STATE_CLEAR;
 	}
 }
@@ -311,6 +316,7 @@ void Player::move( ) {
 		_speed.x -= _speed.normalize( ).x * GRAVITY_FORCE * GAME_END_FRICTION;//ê√ñÄéC
 		if ( _speed.x <= 0 ) {
 			_speed.x = 0;
+			_player_stoped = true;
 		}
 	}
 

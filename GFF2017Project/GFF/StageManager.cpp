@@ -64,50 +64,7 @@ Vector StageManager::raycastBlock( Vector origin_pos, Vector next_pos ) {
 	if ( ray.getLength( ) == 0 ) {
 		return origin_pos;
 	}
-	/*Vector multiple_normalize_ray = ray.normalize( );
-	FieldPtr field = app->getField( );
-	double multiple = 0;
-	Field::FieldContents field_block;
-	field_block.x = -1;
-	field_block.y = -1;
-	multiple_normalize_ray = Vector ( 0, 0, 0 );
-
-	while ( ray.getLength( ) >= multiple_normalize_ray.getLength( ) ) {
-
-		multiple_normalize_ray += origin_pos;
-
-		int x = ( int )( ( multiple_normalize_ray.x + ( DEBRI_WIDTH / 2 ) ) / Field::FX_TO_MX );
-		int y = ( int )( ( multiple_normalize_ray.y ) / Field::FY_TO_MY );
 	
-		multiple += 0.5;
-		multiple_normalize_ray = ray.normalize( ) * multiple;
-
-		if ( x < 0 ) {
-			x = 0;
-		}
-		
-		if ( y < 0 ) {
-			y = 0;
-		}
-
-		if ( x >= STAGE_MAX_WIDTH ) {
-			x = STAGE_MAX_WIDTH - 1;
-		}
-
-		if ( y >= STAGE_MAX_HEIGHT ) {
-			y = STAGE_MAX_HEIGHT - 1;
-		}
-
-		field_block = field->getFieldObj( x, y );
-		if( field_block.x >= 0 && field_block.y >= 0 ) {
-			break;
-		}
-		
-	}
-
-	if ( field_block.x < 0 || field_block.y < 0 ) {
-		return origin_pos;
-	}*/
 	FieldPtr field = app->getField( );
 	int max_idx = field->getMaxIdx( );
 	Vector final_out = dir;
@@ -183,6 +140,10 @@ int StageManager::getTimeCount( ) {
 void StageManager::timerStart( ) {
 	_timer->timerStart( );
 }
+void StageManager::setClear( ) {
+	return _timer->clear( );
+}
+
 bool StageManager::isTimeLimit( ) {
 	return _timer->isTimeLimit( );
 }
