@@ -3,6 +3,8 @@
 #include "Device.h"
 #include "Game.h"
 #include "StageManager.h"
+#include "Viewer.h"
+#include "Drawer.h"
 
 const Vector START_POS = Vector( 0.0, 10.0, 0.0 );
 const Vector START_DIR = Vector( 1.0, 0.0, 0.0 );
@@ -232,13 +234,14 @@ void Player::deviceController( ) {
 		//歩行
 		Vector move_vec = Vector( dir_x, 0, 0 );//移動ベクトルを取る
 		move_vec *= 0.001;
-		if (dir_x > 0) {
-			addForce(move_vec);
-		}else if (_speed.x > 0) {
-			addForce(move_vec);
+		if ( dir_x > 0 ) {
+			addForce( move_vec );
+		}else if ( _speed.x > 0 ) {
+			addForce( move_vec );
 		}
 
 		//ジャンプ
+
 		bool on_jump = ( device->getButton( ) & BUTTON_C ) > 0;//ジャンプ状態
 		if ( on_jump ) {
 			_is_jump = true;
@@ -257,7 +260,7 @@ void Player::deviceController( ) {
 		Vector move_vec = Vector(dir_x, 0, 0);//移動ベクトルを取る
 		move_vec *= 0.00001;
 		addForce(move_vec);
-		if ( !( ( device->getButton() & BUTTON_C ) > 0 ) && (_before_device_button & BUTTON_C) > 0 && _push_jump_buton < JUMP_POWER * 100 / 2 ) {
+		if ( !( ( device->getButton( ) & BUTTON_C ) > 0 ) && (_before_device_button & BUTTON_C) > 0 && _push_jump_buton < JUMP_POWER * 100 / 2 ) {
 			Vector move_vec = _gravity_vec * (JUMP_POWER / 2 - _push_jump_buton / 100);
 			addForce(move_vec);
 		}
@@ -276,6 +279,9 @@ void Player::deviceController( ) {
 		/*ここで加速度の調整*/
 		move_vec *= 2;
 		addForce( move_vec );
+		//ターボエフェクト
+		DrawerPtr drawer = Drawer::getTask( );
+		drawer->setEffect( Drawer::Effect( Viewer::EFFECT_TURBO, _pos + Vector( 15.0, 3.0 ), 1.0, Vector( 0.0, PI / 2 ) ) );
 	}
 
 	//こっちは重力反転コマンドが押されたとき
@@ -284,6 +290,10 @@ void Player::deviceController( ) {
 		_gravity_vec *= -1;
 		_pos.y += _gravity_vec.y * 3;
 		_is_reversal = true;
+
+		//エフェクト
+		DrawerPtr drawer = Drawer::getTask( );
+		drawer->setEffect( Drawer::Effect( Viewer::EFFECT_TURBO, _pos ) );
 	}
 	_before_device_button = device->getButton( );
 	_turbo_time++;
@@ -388,7 +398,7 @@ bool Player::canMove( ) {
 	} else {
 		player_body_pos = Vector(_pos.x, _pos.y + PLAYER_SCALE, _pos.z);
 	} 
-	hit_pos = stage_mgr->raycastBlock(player_body_pos, _speed + _speed.normalize() * PLAYER_RANGE);
+	hit_pos = stage_mgr->raycastBlock(player_body_pos, _speed + _speed.normalize( ) * PLAYER_RANGE);
 	bool result_body = (player_body_pos == hit_pos);
 	return result_foot & result_body;
 }
