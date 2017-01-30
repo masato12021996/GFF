@@ -2,6 +2,7 @@
 #include "Task.h"
 #include "smart_ptr.h"
 #include <string>
+#include <map>
 
 PTR( Game );
 PTR( Title );
@@ -20,7 +21,6 @@ public:
 		STATE_PLAY,
 		STATE_CLEAR,
 	};
-
 	enum SOUND {
 		SOUND_BGM_AFTERGOAL,
 		SOUND_BGM_GAME,
@@ -28,7 +28,6 @@ public:
 		SOUND_SE_GRAVITY,
 		SOUND_SE_TURBO
 	};
-
 public:
 	static GamePtr getTask( );
 	static std::string getTag( ){ return "GAME"; }
@@ -44,6 +43,7 @@ public:
 	FieldPtr getField( ) const;
 	CameraCtrPtr getCameraCtr( ) const;
 	STATE getGameState( ) const;
+	char* getSoundStr( SOUND sound_name );
 private:
 	TitlePtr _title;
 	ReadyPtr _ready;
@@ -53,4 +53,6 @@ private:
 	StageManagerPtr _stage_manager;
 	CameraCtrPtr _camera_ctr;
 	double _clear_line_x;
+
+	std::map< SOUND, char* > _sound_str;
 };

@@ -72,6 +72,12 @@ void Game::initialize( ) {
 			_clear_line_x = pos.x;
 		}
 	}
+
+	_sound_str[ SOUND_BGM_AFTERGOAL ] = "AfterGoal.mp3";
+	_sound_str[ SOUND_BGM_GAME ]      = "GameBGM.mp3";
+	_sound_str[ SOUND_SE_COUNT ]      = "Count.mp3";
+	_sound_str[ SOUND_SE_GRAVITY ]    = "Gravity.mp3";
+	_sound_str[ SOUND_SE_TURBO ]      = "Turbo.mp3";
 }
 
 void Game::update( ) {
@@ -90,6 +96,10 @@ void Game::update( ) {
 		if ( _ready->isEndReady( ) ) {
 			_state = STATE_PLAY;
 			_player->awake( );
+
+			//プレイサウンド再生
+			SoundPtr sound = Sound::getTask( );
+			sound->playBGM( _sound_str[ SOUND_BGM_GAME ] );
 		}
 		break;
 	case STATE_PLAY:
@@ -101,6 +111,10 @@ void Game::update( ) {
 			_state = STATE_CLEAR;
 			_player->setEndMotion( );
 			_stage_manager->setClear( );
+
+			//クリアサウンド再生
+			SoundPtr sound = Sound::getTask( );
+			sound->playBGM( _sound_str[ SOUND_BGM_AFTERGOAL ] );
 		}
 		break;
 	case STATE_CLEAR:
@@ -108,6 +122,10 @@ void Game::update( ) {
 		if( _player->isEndClearMotion( ) && device->getButton( ) > 0 ) {
 			_state = STATE_TITLE;
 			initialize( );
+
+			//クリアサウンド再生
+			SoundPtr sound = Sound::getTask( );
+			sound->stopBGM( );
 		}
 		break;
 	}	
@@ -122,4 +140,8 @@ Game::STATE Game::getGameState( ) const {
 
 ReadyPtr Game::getReady( ) {
 	return _ready;
+}
+
+char* Game::getSoundStr( Game::SOUND sound_name ) {
+	return _sound_str[ sound_name ];
 }

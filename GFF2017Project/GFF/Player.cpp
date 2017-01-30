@@ -4,6 +4,7 @@
 #include "Game.h"
 #include "StageManager.h"
 #include "Viewer.h"
+#include "Sound.h"
 #include "Drawer.h"
 
 const Vector START_POS = Vector( 0.0, 10.0, 0.0 );
@@ -287,6 +288,11 @@ void Player::deviceController( ) {
 		//ターボエフェクト
 		DrawerPtr drawer = Drawer::getTask( );
 		drawer->setEffect( Drawer::Effect( Viewer::EFFECT_TURBO, _pos + Vector( 15.0, 3.0 ), 1.0, Vector( 0.0, PI / 2 ) ) );
+
+		//ターボSE再生
+		GamePtr game = Game::getTask( );
+		SoundPtr sound = Sound::getTask( );
+		sound->playSE( game->getSoundStr( Game::SOUND_SE_TURBO ) );
 	}
 
 	//こっちは重力反転コマンドが押されたとき
@@ -299,6 +305,11 @@ void Player::deviceController( ) {
 		//エフェクト
 		DrawerPtr drawer = Drawer::getTask( );
 		drawer->setEffect( Drawer::Effect( Viewer::EFFECT_TURBO, _pos ) );
+
+		//グラビティSE再生
+		GamePtr game = Game::getTask( );
+		SoundPtr sound = Sound::getTask( );
+		sound->playSE( game->getSoundStr( Game::SOUND_SE_GRAVITY ) );
 	}
 	_before_device_button = device->getButton( );
 	_turbo_time++;

@@ -1,4 +1,6 @@
 #include "Ready.h"
+#include "Sound.h"
+#include "Game.h"
 
 const int FPS = 60;
 const int MAX_TIME = FPS * 4;
@@ -13,6 +15,12 @@ Ready::~Ready( ) {
 
 void Ready::update( ) {
 	_time -= SPEED;
+
+	if ( _time % FPS == 0 ) {
+		GamePtr game = Game::getTask( );
+		SoundPtr sound = Sound::getTask( );
+		sound->playSE( game->getSoundStr( Game::SOUND_SE_COUNT ) );
+	}
 }
 
 int Ready::getTimeCount( ) {
