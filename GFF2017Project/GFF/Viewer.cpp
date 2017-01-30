@@ -125,6 +125,7 @@ void Viewer::update( ) {
 		drawTitle( );
 		break;
 	case Game::STATE_PLAY:
+	case Game::STATE_CLEAR:
 		drawStageMdl( );
 		drawPlayer( );
 		drawBackTower( );
