@@ -19,14 +19,17 @@ public:
 		STATE_FALL,
 		STATE_LAND,
 		STATE_REVERSAL,
+		STATE_CLEAR,
 		STATE_MAX
 	};
 public:
 	void update( );
+	void setEndMotion( );
 	Vector getPos( ) const;
 	Vector getDir( ) const;
 	STATE getState( ) const;
-	bool isReversal() const;
+	bool isReversal( ) const;
+	bool isEndClearMotion( ) const;
 	AnimationPtr getAnimation( ) const;
 	Vector getSpeed( ) const;
 	int getTurboCoolTime( ) const;
@@ -54,6 +57,8 @@ private:
 	bool _is_land;
 	bool _is_reversal;
 	bool _can_turbo;
+	bool _game_clear;
+	bool _end_clear_animation;
 	int _turbo_time;
 	int _before_device_button;
 	int _push_jump_buton;

@@ -6,6 +6,7 @@
 #include "StageManager.h"
 #include "Field.h"
 #include "LoadCSV.h"
+#include "Device.h"
 
 
 GamePtr Game::getTask( ) {
@@ -65,10 +66,15 @@ void Game::initialize( ) {
 			_field->setFieldDebris( ( int )pos.x , ( int )pos.y );
 			_stage_manager->addDebri( pos, ( map_width * map_height ) - ( i + 1 )  );
 		}
+		if ( csv.getCsvValue( i ) == 5 ) {
+			_clear_line_x = pos.x;
+		}
 	}
 }
 
 void Game::update( ) {
+	DevicePtr device = Device::getTask( );
+
 	switch( _state ) {
 	case STATE_TITLE:
 		_title->update( );
@@ -81,8 +87,20 @@ void Game::update( ) {
 			_stage_manager->timerStart( );
 		}
 		_player->update( );
+		if ( _player->getPos( ).x > ( _clear_line_x * Field::FX_TO_MX ) ) {
+			_state = STATE_CLEAR;
+			_player->setEndMotion( );
+		}
+		break;
+	case STATE_CLEAR:
+		_player->update( );
+		if( _player->isEndClearMotion( ) && device->getButton( ) > 0 ) {
+			_state = STATE_TITLE;
+		}
 		break;
 	}	
+	
+		
 	_camera_ctr->update( );
 }
 
