@@ -7,6 +7,7 @@
 #include "Field.h"
 #include "LoadCSV.h"
 #include "Device.h"
+#include "Ready.h"
 
 GamePtr Game::getTask( ) {
 	ApplicationPtr application = Application::getInstance( );
@@ -39,6 +40,7 @@ FieldPtr Game::getField( ) const {
 void Game::initialize( ) {
 	_player = PlayerPtr( new Player( ) );
 	_title = TitlePtr( new Title( ) );
+	_ready = ReadyPtr( new Ready( ) );
 	_stage_manager = StageManagerPtr( new StageManager( ) );
 	_camera_ctr = CameraCtrPtr( new CameraCtr( ) );
 	_field = FieldPtr( new Field( ) );
@@ -78,7 +80,15 @@ void Game::update( ) {
 	case STATE_TITLE:
 		_title->update( );
 		if ( _title->isEndTitle( ) ) {
+			_state = STATE_READY;
+		}
+		break;
+	case STATE_READY:
+		_player->update( );
+		_ready->update( );
+		if ( _ready->isEndReady( ) ) {
 			_state = STATE_PLAY;
+			_player->awake( );
 		}
 		break;
 	case STATE_PLAY:
@@ -95,6 +105,7 @@ void Game::update( ) {
 		_player->update( );
 		if( _player->isEndClearMotion( ) && device->getButton( ) > 0 ) {
 			_state = STATE_TITLE;
+			initialize( );
 		}
 		break;
 	}	
@@ -105,4 +116,8 @@ void Game::update( ) {
 
 Game::STATE Game::getGameState( ) const {
 	return _state;
+}
+
+ReadyPtr Game::getReady( ) {
+	return _ready;
 }

@@ -18,6 +18,7 @@ public:
 private:
 	void drawPlayer( );
 	void drawTitle( );
+	void drawReadyCount( );
 	void drawStageMdl( );
 	void drawLimitTime( );
 	void drawBackTower( );

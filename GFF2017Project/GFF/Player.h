@@ -24,6 +24,7 @@ public:
 	};
 public:
 	void update( );
+	void awake( );
 	void setEndMotion( );
 	Vector getPos( ) const;
 	Vector getDir( ) const;
@@ -51,6 +52,7 @@ private:
 	STATE _state;	//ó‘Ô
 	int _fly_time;	//‘Ø‹óŠÔ
 	Vector _gravity_vec;//d—ÍŒü‚«
+	bool _stop_controll;
 	bool _is_turbo;
 	bool _is_jump;
 	bool _is_fall;

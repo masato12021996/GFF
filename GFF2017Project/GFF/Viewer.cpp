@@ -11,6 +11,7 @@
 #include "Application.h"
 #include "Drawer.h"
 #include "Game.h"
+#include "Ready.h"
 
 const int TITILE_LOGO_X = 1024;
 const int TITILE_LOGO_Y = 710;
@@ -123,6 +124,15 @@ void Viewer::update( ) {
 		drawBackGround( );
 		drawBackTower( );
 		drawTitle( );
+		break;
+	case Game::STATE_READY:
+		drawReadyCount( );
+		drawStageMdl( );
+		drawPlayer( );
+		drawBackTower( );
+		drawBackGround( );
+		drawLimitTime( );
+		drawTurboCoolTime( );
 		break;
 	case Game::STATE_PLAY:
 	case Game::STATE_CLEAR:
@@ -336,4 +346,18 @@ void Viewer::drawTitle( ) {
 	int sy = 0 + ( app->getWindowHeight( ) - TITILE_LOGO_Y ) / 2;
 	Drawer::Sprite sprite = Drawer::Sprite( Drawer::Transform( sx, sy ), RES_UI_GAUGE_TITLE_LOGO );
 	drawer->setSprite( sprite );
+}
+
+void Viewer::drawReadyCount( ) {
+	DrawerPtr drawer = Drawer::getTask( );
+
+	GamePtr game = Game::getTask( );
+	ReadyPtr ready = game->getReady( );
+	int time = ready->getTimeCount( );
+	int ty = 0;
+	int tx = time * TIME_NUM_WIDTH;
+	ApplicationPtr app = Application::getInstance( );
+	int x = app->getWindowWidth( ) / 2	- TIME_NUM_WIDTH / 2;
+	int y = app->getWindowHeight( ) / 2 - TIME_HEIGHT / 2;
+	drawer->setSprite( Drawer::Sprite( Drawer::Transform( x, y, tx, ty, TIME_NUM_WIDTH, TIME_HEIGHT ), RES_UI_NUM ) );
 }

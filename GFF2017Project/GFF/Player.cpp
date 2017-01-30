@@ -44,6 +44,7 @@ Player::Player( ) {
 	_push_jump_buton = 0;
 	_game_clear = false;
 	_end_clear_animation = false;
+	_stop_controll = true;
 }
 
 Player::~Player( ) {
@@ -60,8 +61,13 @@ Vector Player::getPos( ) const {
 	return _pos;
 }
 
+void Player::awake( ) {
+	_stop_controll = false;
+}
+
 void Player::setEndMotion( ) {
 	_game_clear = true;
+	_stop_controll = true;
 }
 
 bool Player::isEndClearMotion( ) const {
@@ -87,8 +93,6 @@ Player::STATE Player::getState( ) const {
 AnimationPtr Player::getAnimation( ) const {
 	return _animation;
 }
-
-
 
 void Player::swicthStatus( ) {
 	_state = STATE_WAIT;
@@ -216,7 +220,7 @@ void Player::animationUpdate( ) {
 
 //デバイスの入力に対応した処理
 void Player::deviceController( ) {
-	if ( _game_clear ) {
+	if ( _stop_controll ) {
 		return;
 	}
 	DevicePtr device = Device::getTask( );
