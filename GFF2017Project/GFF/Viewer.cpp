@@ -10,6 +10,10 @@
 #include "Animation.h"
 #include "Application.h"
 #include "Drawer.h"
+#include "Game.h"
+
+const int TITILE_LOGO_X = 1024;
+const int TITILE_LOGO_Y = 710;
 
 const double MV1_SCALE = 0.1;
 const int TIME_X = 650;
@@ -58,7 +62,8 @@ enum RES {
 	RES_UI_NUM,
 	RES_UI_GAUGE_FRAME,
 	RES_UI_GAUGE_ENERGY,
-	RES_UI_GAUGE_BACKGROUND
+	RES_UI_GAUGE_BACKGROUND,
+	RES_UI_GAUGE_TITLE_LOGO
 };
 
 ViewerPtr Viewer::getTask( ) {
@@ -98,11 +103,7 @@ void Viewer::initialize( ) {
 	drawer->loadGraph( RES_UI_GAUGE_FRAME, "UI/gauge_frame.png" );
 	drawer->loadGraph( RES_UI_GAUGE_ENERGY, "UI/gauge_energy.png" );
 	drawer->loadGraph( RES_UI_GAUGE_BACKGROUND, "UI/gauge_background.png" );
-
-	//エフェクト読み込み
-	drawer->loadEffect( EFFECT_GRAVITY, "Effect/gravity.efk" );
-	drawer->loadEffect( EFFECT_TURBO, "Effect/drill.efk" );
-	drawer->loadEffect( EFFECT_WIND, "Effect/wind.efk" );
+	drawer->loadGraph( RES_UI_GAUGE_TITLE_LOGO, "UI/GRASH_LOGO.png" );
 	_back_tower_angle = 0;
 }
 
@@ -116,13 +117,25 @@ Viewer::~Viewer( ) {
 
 void Viewer::update( ) {
 	//ここで描画処理
-	drawStageMdl( );
-	drawPlayer( );
-	drawBackTower( );
-	drawBackGround( );
-	drawLimitTime( );
-	drawTurboCoolTime( );
+	GamePtr game = Game::getTask( );
+	switch( game->getGameState( ) ) {
+	case Game::STATE_TITLE:
+		drawBackGround( );
+		drawBackTower( );
+		drawTitle( );
+		break;
+	case Game::STATE_PLAY:
+	case Game::STATE_CLEAR:
+		drawStageMdl( );
+		drawPlayer( );
+		drawBackTower( );
+		drawBackGround( );
+		drawLimitTime( );
+		drawTurboCoolTime( );
+		break;
+	};
 }
+
 void Viewer::drawPlayer( ) {
 	GamePtr game = Game::getTask( );
 	PlayerPtr player = game->getPlayer( );
@@ -267,7 +280,6 @@ void Viewer::drawBackTower( ) {
 	drawer->setModelMV1( model_mv1 );
 }
 
-
 void Viewer::drawBackGround( ) {
 	DrawerPtr drawer = Drawer::getTask( );
 	GamePtr game = Game::getTask( );
@@ -315,4 +327,13 @@ void Viewer::drawTurboCoolTime( ) {
 		Drawer::Sprite sprite = Drawer::Sprite( Drawer::Transform( sx, sy, 0, 0, GAUGE_WIDTH, GAUGE_HEIGHT ), RES_UI_GAUGE_FRAME );
 		drawer->setSprite( sprite );
 	}
+}
+
+void Viewer::drawTitle( ) {
+	DrawerPtr drawer = Drawer::getTask( );
+	ApplicationPtr app = Application::getInstance( );
+	int sx = 0 + ( app->getWindowWidth( ) - TITILE_LOGO_X ) / 2;
+	int sy = 0 + ( app->getWindowHeight( ) - TITILE_LOGO_Y ) / 2;
+	Drawer::Sprite sprite = Drawer::Sprite( Drawer::Transform( sx, sy ), RES_UI_GAUGE_TITLE_LOGO );
+	drawer->setSprite( sprite );
 }
