@@ -98,6 +98,11 @@ void Viewer::initialize( ) {
 	drawer->loadGraph( RES_UI_GAUGE_FRAME, "UI/gauge_frame.png" );
 	drawer->loadGraph( RES_UI_GAUGE_ENERGY, "UI/gauge_energy.png" );
 	drawer->loadGraph( RES_UI_GAUGE_BACKGROUND, "UI/gauge_background.png" );
+
+	//エフェクト読み込み
+	drawer->loadEffect( EFFECT_GRAVITY, "Effect/gravity.efk" );
+	drawer->loadEffect( EFFECT_TURBO, "Effect/drill.efk" );
+	drawer->loadEffect( EFFECT_WIND, "Effect/wind.efk" );
 	_back_tower_angle = 0;
 }
 

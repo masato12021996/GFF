@@ -7,6 +7,12 @@ PTR( Viewer );
 
 class Viewer: public Task {
 public:
+	enum EFFECT {
+		EFFECT_GRAVITY,
+		EFFECT_TURBO,
+		EFFECT_WIND
+	};
+public:
 	static ViewerPtr getTask( );
 	static std::string getTag( ) { return "VIEWER"; }
 public:
