@@ -7,6 +7,7 @@
 #include "Field.h"
 #include "LoadCSV.h"
 #include "Device.h"
+#include "Sound.h"
 #include "Ready.h"
 
 GamePtr Game::getTask( ) {

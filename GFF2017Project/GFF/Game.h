@@ -9,6 +9,7 @@ PTR( Ready );
 PTR( Player );
 PTR( StageManager );
 PTR( CameraCtr );
+PTR( Sound );
 PTR( Field );
 
 class Game : public Task {
@@ -19,6 +20,15 @@ public:
 		STATE_PLAY,
 		STATE_CLEAR,
 	};
+
+	enum SOUND {
+		SOUND_BGM_AFTERGOAL,
+		SOUND_BGM_GAME,
+		SOUND_SE_COUNT,
+		SOUND_SE_GRAVITY,
+		SOUND_SE_TURBO
+	};
+
 public:
 	static GamePtr getTask( );
 	static std::string getTag( ){ return "GAME"; }

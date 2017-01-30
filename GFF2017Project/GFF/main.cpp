@@ -4,6 +4,7 @@
 #include "Drawer.h"
 #include "Camera.h"
 #include "Viewer.h"
+#include "Sound.h"
 #include "Game.h"
 
 void main( ) {
@@ -12,11 +13,13 @@ void main( ) {
 	DevicePtr device = DevicePtr( new Device );
 	DrawerPtr drawer = DrawerPtr( new Drawer( "../Resources" ) );
 	ViewerPtr viewer = ViewerPtr( new Viewer );
+	SoundPtr sound = SoundPtr( new Sound( "../Resources/Sound" ) );
 	GamePtr game = GamePtr( new Game );
 
 	application->addTask( Mouse::getTag( ), mouse );
 	application->addTask( Device::getTag( ), device );
 	application->addTask( Drawer::getTag( ), drawer );
 	application->addTask( Viewer::getTag( ), viewer );
+	application->addTask( Sound::getTag( ), sound );
 	application->addTask( Game::getTag( ), game );
 }

@@ -108,7 +108,7 @@ void Viewer::initialize( ) {
 
 	//エフェクト読み込み
 	drawer->loadEffect( EFFECT_GRAVITY, "Effect/gravity.efk" );
-	drawer->loadEffect( EFFECT_TURBO, "Effect/drill.efk" );
+	drawer->loadEffect( EFFECT_TURBO, "Effect/turbo.efk" );
 	drawer->loadEffect( EFFECT_WIND, "Effect/wind.efk" );
 
 	_back_tower_angle = 0;
