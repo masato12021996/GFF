@@ -4,6 +4,7 @@
 #include "CameraCtr.h"
 #include "Application.h"
 #include "StageManager.h"
+#include "Timer.h"
 #include "Field.h"
 #include "LoadCSV.h"
 #include "Device.h"
@@ -38,6 +39,11 @@ FieldPtr Game::getField( ) const {
 	return _field;
 }
 
+TitlePtr Game::getTitle( ) const {
+	return _title;
+}
+
+
 void Game::initialize( ) {
 	_player = PlayerPtr( new Player( ) );
 	_title = TitlePtr( new Title( ) );
@@ -45,39 +51,16 @@ void Game::initialize( ) {
 	_stage_manager = StageManagerPtr( new StageManager( ) );
 	_camera_ctr = CameraCtrPtr( new CameraCtr( ) );
 	_field = FieldPtr( new Field( ) );
-	LoadCSV csv;
-	csv.loadCsv( "../Resources/MapData/MapData.csv" );
-	int map_width = csv.getCsvWidth( );
-	int map_height = csv.getCsvHeight( );
-	_field->setFieldWidth( map_width + 8 );
-	_stage_manager->setStageWidth( map_width );
-	_stage_manager->setStageHeight( map_height );
-	for ( int i = ( map_width * map_height ) - 1; i >= 0; i-- ) {
-		if ( csv.getCsvValue( i ) == 0 ) {
-			continue;
-		}
-		Vector pos;
-		pos.x = ( ( i ) % map_width );
-		pos.y =  map_height - ( ( i ) / map_width ) - 1;
-		pos.z = 0;
-		if ( csv.getCsvValue( i ) == 1 ) {
-			_field->setFieldBlock( ( int )pos.x , ( int )pos.y );
-			_stage_manager->addStageBlock( pos, ( map_width * map_height ) - ( i + 1 )  );
-		}
-		if ( csv.getCsvValue( i ) == 2 ) {
-			_field->setFieldDebris( ( int )pos.x , ( int )pos.y );
-			_stage_manager->addDebri( pos, ( map_width * map_height ) - ( i + 1 )  );
-		}
-		if ( csv.getCsvValue( i ) == 5 ) {
-			_clear_line_x = pos.x;
-		}
-	}
 
 	_sound_str[ SOUND_BGM_AFTERGOAL ] = "AfterGoal.mp3";
 	_sound_str[ SOUND_BGM_GAME ]      = "GameBGM.mp3";
 	_sound_str[ SOUND_SE_COUNT ]      = "Count.mp3";
 	_sound_str[ SOUND_SE_GRAVITY ]    = "Gravity.mp3";
 	_sound_str[ SOUND_SE_TURBO ]      = "Turbo.mp3";
+
+	_stage_time[ "Stage1" ] = 60;
+	_stage_time[ "Stage2" ] = 30;
+	_stage_time[ "Stage3" ] = 30;
 }
 
 void Game::update( ) {
@@ -87,6 +70,8 @@ void Game::update( ) {
 	case STATE_TITLE:
 		_title->update( );
 		if ( _title->isEndTitle( ) ) {
+			initCSV( _title->getSelectStageStr( ) );
+			_stage_manager->setTimer( TimerPtr( new Timer( _stage_time[ _title->getSelectStageStr( ) ] ) ) );
 			_state = STATE_READY;
 		}
 		break;
@@ -134,6 +119,38 @@ void Game::update( ) {
 	_camera_ctr->update( );
 }
 
+void Game::initCSV( std::string path ) {
+	LoadCSV csv;
+	path = "../Resources/MapData/" + path + ".csv";
+	csv.loadCsv( path.c_str( ) );
+	int map_width = csv.getCsvWidth( );
+	int map_height = csv.getCsvHeight( );
+	_field->setFieldWidth( map_width + 8 );
+	_stage_manager->setStageWidth( map_width );
+	_stage_manager->setStageHeight( map_height );
+	for ( int i = ( map_width * map_height ) - 1; i >= 0; i-- ) {
+		if ( csv.getCsvValue( i ) == 0 ) {
+			continue;
+		}
+		Vector pos;
+		pos.x = ( ( i ) % map_width );
+		pos.y =  map_height - ( ( i ) / map_width ) - 1;
+		pos.z = 0;
+		if ( csv.getCsvValue( i ) == 1 ) {
+			_field->setFieldBlock( ( int )pos.x , ( int )pos.y );
+			_stage_manager->addStageBlock( pos, ( map_width * map_height ) - ( i + 1 )  );
+		}
+		if ( csv.getCsvValue( i ) == 2 ) {
+			_field->setFieldDebris( ( int )pos.x , ( int )pos.y );
+			_stage_manager->addDebri( pos, ( map_width * map_height ) - ( i + 1 )  );
+		}
+		if ( csv.getCsvValue( i ) == 5 ) {
+			_clear_line_x = pos.x;
+		}
+	}
+}
+
+
 Game::STATE Game::getGameState( ) const {
 	return _state;
 }
@@ -144,4 +161,19 @@ ReadyPtr Game::getReady( ) {
 
 char* Game::getSoundStr( Game::SOUND sound_name ) {
 	return _sound_str[ sound_name ];
+}
+
+int Game::getStageNum( ) {
+	return ( int )_stage_time.size( );
+}
+
+std::string Game::getStageStr( int idx ) {
+	std::map< std::string, int >::iterator it = _stage_time.begin( );
+	for ( int i = 0; i < ( int )_stage_time.size( ); i++ ) {
+		if ( i == idx ) {
+			return it->first;
+		}
+		it++;
+	}
+	return std::string( );
 }

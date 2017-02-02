@@ -20,12 +20,16 @@ public:
 		STATE_LAND,
 		STATE_REVERSAL,
 		STATE_CLEAR,
+		STATE_CRASH,
 		STATE_MAX
 	};
 public:
+	void reset( );
 	void update( );
 	void awake( );
+	void respawn( );
 	void setEndMotion( );
+	void setHitDebri( bool hit );
 	Vector getPos( ) const;
 	Vector getDir( ) const;
 	STATE getState( ) const;
@@ -59,6 +63,7 @@ private:
 	bool _is_fall;
 	bool _is_land;
 	bool _is_reversal;
+	bool _is_hit_debri;
 	bool _can_turbo;
 	bool _game_clear;
 	bool _player_stoped;

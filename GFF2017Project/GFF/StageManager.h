@@ -32,6 +32,7 @@ public:
 	Vector raycastBlock( Vector origin_pos, Vector dir );
 	void addStageBlock( Vector pos, int i );
 	void addDebri( Vector pos, int i );
+	void setTimer( TimerPtr timer );
 private:
 	std::array< StageBlockPtr, STAGE_MAX_WIDTH * STAGE_MAX_HEIGHT > _stage_block;
 	std::array< DebriPtr, STAGE_MAX_WIDTH * STAGE_MAX_HEIGHT > _stage_debri;

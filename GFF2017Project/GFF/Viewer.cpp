@@ -6,6 +6,7 @@
 #include "StageManager.h"
 #include "StageBlock.h"
 #include "Debri.h"
+#include "Title.h"
 #include "Field.h"
 #include "Animation.h"
 #include "Application.h"
@@ -53,10 +54,10 @@ enum MODEL_MV1{
 	MODEL_MV1_PLAYER_GOAL,
 	MODEL_MV1_PLAYER_FALL,
 	MODEL_MV1_PLAYER_CRASH,
+	MODEL_MV1_PLAYER_2,
 
 	MODEL_MV1_BACK_GROUND,
 	MODEL_MV1_BACK_TOWER,
-
 };
 
 enum RES {
@@ -77,6 +78,7 @@ void Viewer::initialize( ) {
 	//ここでリソースの読み込み
 	//MV1モデルの読み込み
 	drawer->loadMV1Model( MODEL_MV1_PLAYER, "Model/Player/player.mv1" );
+	drawer->loadMV1Model( MODEL_MV1_PLAYER_2, "Model/Player2/player.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_WAIT, "Model/Player/player_wait.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_RUN, "Model/Player/player_run.mv1" );
 	drawer->loadMV1Model( MODEL_MV1_PLAYER_HOVER, "Model/Player/player_hover.mv1" );
@@ -166,15 +168,22 @@ void Viewer::drawPlayer( ) {
 	Matrix mat_trans = Matrix::makeTransformTranslation( pos );
 	bool _is_reversal = player->isReversal( );
 	Matrix mat = mat_rot;
+	int mesh = MODEL_MV1_PLAYER;
+
 	if ( _is_reversal ) {
 		mat = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 6 * 11 );
+		if ( player->getState( ) == Player::STATE_CLEAR ) {
+			mat = Matrix::makeTransformRotation( Vector( 0, 1, 0 ), PI / 2 );
+		}
 		mat = mat * mat_reversal_rot;
+		mesh = MODEL_MV1_PLAYER_2;
+		
 	}
 	mat = mat * mat_scale * mat_trans;
 	
 	int motion = animation->getMotion( );
 	double anim_tim = animation->getAnimTime( );
-	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, MODEL_MV1_PLAYER, motion, anim_tim );
+	Drawer::ModelMV1 model_mv1 = Drawer::ModelMV1( mat, mesh, motion, anim_tim );
 	drawer->setModelMV1( model_mv1 );
 
 	/*StageManagerPtr stage_manager = game->getStageManager( );
@@ -188,6 +197,9 @@ void Viewer::drawLimitTime( ) {
 	GamePtr game = Game::getTask( );
 	StageManagerPtr stage_manager = game->getStageManager( );
 	int time = stage_manager->getTimeCount( );
+	if ( time < 0 ) {
+		time = 0;
+	}
 	int second = time / 1000;
 	int milli = ( time / 10 ) % 100;
 	if ( milli <= 9 && second != 0 ) {
@@ -354,6 +366,12 @@ void Viewer::drawTitle( ) {
 	int sy = 0 + ( app->getWindowHeight( ) - TITILE_LOGO_Y ) / 2;
 	Drawer::Sprite sprite = Drawer::Sprite( Drawer::Transform( sx, sy ), RES_UI_GAUGE_TITLE_LOGO );
 	drawer->setSprite( sprite );
+
+	GamePtr game = Game::getTask( );
+	TitlePtr title = game->getTitle( );
+	int string_sx = app->getWindowWidth( ) / 2;
+	int string_sy = app->getWindowHeight( );
+	drawer->drawString( string_sx, string_sy - 20, title->getSelectStageStr( ).c_str( ) );
 }
 
 void Viewer::drawReadyCount( ) {

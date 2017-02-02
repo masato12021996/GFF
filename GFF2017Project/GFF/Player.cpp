@@ -28,6 +28,13 @@ const double PLAYER_RANGE = 0.1;
 const double PLAYER_SCALE = 2.5;
 
 Player::Player( ) {
+	reset( );
+}
+
+Player::~Player( ) {
+}
+
+void Player::reset( ) {
 	_pos = START_POS;
 	_dir = START_DIR;
 	_force = Vector( 0, 0, 0 );
@@ -42,16 +49,14 @@ Player::Player( ) {
 	_can_turbo = true;
 	_turbo_time = 0;
 	_before_device_button = 0;
-	_speed = Vector(0, 0, 0);
+	_speed = Vector( 0, 0, 0 );
 	_before_speed = _speed;
 	_push_jump_buton = 0;
 	_game_clear = false;
 	_player_stoped = false;
 	_end_clear_animation = false;
 	_stop_controll = true;
-}
-
-Player::~Player( ) {
+	_is_hit_debri = false;
 }
 
 void Player::update( ) {
@@ -69,9 +74,19 @@ void Player::awake( ) {
 	_stop_controll = false;
 }
 
+void Player::respawn( ) {
+	reset( );
+	awake( );
+}
+
 void Player::setEndMotion( ) {
 	_game_clear = true;
 	_stop_controll = true;
+}
+
+//この関数だけStageMnagerのRayCast関数で使う。
+void Player::setHitDebri( bool hit ) {
+	_is_hit_debri = hit;
 }
 
 bool Player::isPlayerStoped( ) const {
@@ -117,7 +132,7 @@ void Player::swicthStatus( ) {
 		_state = STATE_JUMP;
 		
 	}
-	if (_is_fall) {
+	if ( _is_fall ) {
 		_state = STATE_FALL;
 	}
 	if ( _is_land ) {
@@ -127,11 +142,16 @@ void Player::swicthStatus( ) {
 		_state = STATE_REVERSAL;
 	}
 
-	if ( _is_turbo == true ) {
+	if ( _is_turbo ) {
 		_state = STATE_TURBO;
 	}
-	if ( _player_stoped == true && onGround( ) ) {
+	if ( _is_hit_debri ) {
+		_state = STATE_CRASH;
+	}
+	if ( _player_stoped && onGround( ) ) {
 		_state = STATE_CLEAR;
+		//クリア後の演出上x軸をスタート近くへ戻す
+		_pos.x = 10.0;
 	}
 }
 
@@ -185,9 +205,9 @@ void Player::animationUpdate( ) {
 			}
 		}
 	}
-	if (_state == STATE_FALL) {
-		if (_animation->getMotion() != Animation::MOTION_PLAYER_FALL) {
-			_animation = AnimationPtr(new Animation(Animation::MOTION_PLAYER_FALL));
+	if ( _state == STATE_FALL ) {
+		if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_FALL ) {
+			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_FALL ) );
 		}
 		else if (_animation->isEndAnimation()) {
 			double time = _animation->getEndAnimTime();
@@ -195,28 +215,38 @@ void Player::animationUpdate( ) {
 		}
 	}
 	if ( _state == STATE_LAND ) {
-		if (_animation->getMotion() != Animation::MOTION_PLAYER_LAND) {
-			_animation = AnimationPtr(new Animation(Animation::MOTION_PLAYER_LAND));
+		if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_LAND ) {
+			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_LAND ) );
 		}
-		else if (_animation->isEndAnimation()) {
-			double time = _animation->getEndAnimTime();
-			_animation->setAnimationTime(time);
+		else if ( _animation->isEndAnimation( ) ) {
+			double time = _animation->getEndAnimTime( );
+			_animation->setAnimationTime( time );
 			_is_land = false;
 		}
 	}
-	if (_state == STATE_REVERSAL) {
-		if (_animation->getMotion() != Animation::MOTION_PLAYER_REVERSAL) {
-			_animation = AnimationPtr(new Animation(Animation::MOTION_PLAYER_REVERSAL));
+	if ( _state == STATE_REVERSAL ) {
+		if (_animation->getMotion( ) != Animation::MOTION_PLAYER_REVERSAL ) {
+			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_REVERSAL ) );
 		}
-		else if (_animation->isEndAnimation()) {
-			double time = _animation->getEndAnimTime();
-			_animation->setAnimationTime(time);
+		else if ( _animation->isEndAnimation( ) ) {
+			double time = _animation->getEndAnimTime( );
+			_animation->setAnimationTime( time );
 			_is_reversal = false;
 		}
 	}
+	if ( _state == STATE_CRASH ) {
+		if (_animation->getMotion( ) != Animation::MOTION_PLAYER_HOVER_CRASH ) {
+			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_HOVER_CRASH ) );
+		}
+		else if ( _animation->isEndAnimation( ) ) {
+			double time = _animation->getEndAnimTime( );
+			_animation->setAnimationTime( time );
+			respawn( );
+		}
+	}
 	if ( _state == STATE_CLEAR ) {
-		if (_animation->getMotion() != Animation::MOTION_PLAYER_GOAL) {
-			_animation = AnimationPtr(new Animation(Animation::MOTION_PLAYER_GOAL));
+		if ( _animation->getMotion( ) != Animation::MOTION_PLAYER_GOAL ) {
+			_animation = AnimationPtr( new Animation( Animation::MOTION_PLAYER_GOAL ) );
 		} else if ( _animation->isEndAnimation( ) ) {
 			double time = _animation->getEndAnimTime( );
 			_animation->setAnimationTime( time );
@@ -360,12 +390,12 @@ void Player::move( ) {
 		}
 		if ( _gravity_vec.y < 0 ) {
 			if (_speed.y < 0) {
-				_speed = Vector(_speed.x, 0, _speed.z);
+				_speed = Vector( _speed.x, 0, _speed.z );
 			}
 		}
 		else {
 			if (_speed.y > 0) {
-				_speed = Vector(_speed.x, 0, _speed.z);
+				_speed = Vector( _speed.x, 0, _speed.z );
 			}
 		}
 		
@@ -411,12 +441,12 @@ bool Player::canMove( ) {
 	bool result_foot =  ( _pos == hit_pos );
 	Vector player_body_pos;
 	if ( _gravity_vec.y > 0 ) {
-		player_body_pos = Vector(_pos.x, _pos.y - PLAYER_SCALE, _pos.z);
+		player_body_pos = Vector( _pos.x, _pos.y - PLAYER_SCALE, _pos.z );
 	} else {
-		player_body_pos = Vector(_pos.x, _pos.y + PLAYER_SCALE, _pos.z);
+		player_body_pos = Vector( _pos.x, _pos.y + PLAYER_SCALE, _pos.z );
 	} 
-	hit_pos = stage_mgr->raycastBlock(player_body_pos, _speed + _speed.normalize( ) * PLAYER_RANGE);
-	bool result_body = (player_body_pos == hit_pos);
+	hit_pos = stage_mgr->raycastBlock( player_body_pos, _speed + _speed.normalize( ) * PLAYER_RANGE );
+	bool result_body = ( player_body_pos == hit_pos );
 	return result_foot & result_body;
 }
 

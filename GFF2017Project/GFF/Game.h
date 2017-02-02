@@ -37,13 +37,17 @@ public:
 public:
 	void initialize( );
 	void update( );
+	void initCSV( std::string path );
 	ReadyPtr getReady( );
 	PlayerPtr getPlayer( ) const;
 	StageManagerPtr getStageManager( ) const;
 	FieldPtr getField( ) const;
 	CameraCtrPtr getCameraCtr( ) const;
+	TitlePtr getTitle( ) const;
 	STATE getGameState( ) const;
 	char* getSoundStr( SOUND sound_name );
+	int getStageNum( );
+	std::string getStageStr( int idx );
 private:
 	TitlePtr _title;
 	ReadyPtr _ready;
@@ -55,4 +59,6 @@ private:
 	double _clear_line_x;
 
 	std::map< SOUND, char* > _sound_str;
+
+	std::map< std::string, int > _stage_time;
 };
